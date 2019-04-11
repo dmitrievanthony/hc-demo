@@ -1,0 +1,10 @@
+version: '3'
+services:
+    frontend:
+        build: hc-demo-frontend
+        ports:
+            - "8080:80"
+        links:
+            - backend
+    backend:
+        build: hc-demo-backend
