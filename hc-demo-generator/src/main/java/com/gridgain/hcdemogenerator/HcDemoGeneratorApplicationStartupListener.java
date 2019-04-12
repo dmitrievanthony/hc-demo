@@ -39,6 +39,7 @@ public class HcDemoGeneratorApplicationStartupListener {
         while (true) {
             Thread.sleep(1000);
             kafkaTemplate.send("topic", "Hello from Kafka!");
+            log.info("Message sent.");
         }
     }
 }

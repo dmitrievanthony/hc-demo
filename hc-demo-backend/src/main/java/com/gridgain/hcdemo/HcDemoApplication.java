@@ -10,7 +10,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,6 +31,8 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 @SpringBootApplication
 public class HcDemoApplication {
 
+	private static final Logger log = LoggerFactory.getLogger(HcDemoApplication.class);
+
 	public static void main(String[] args) {
 		SpringApplication.run(HcDemoApplication.class, args);
 	}
@@ -35,8 +40,8 @@ public class HcDemoApplication {
 	@Bean
 	public ConsumerFactory<String, String> consumerFactory() {
 		Map<String, Object> props = new HashMap<>();
-		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka");
-		props.put(ConsumerConfig.GROUP_ID_CONFIG, "test");
+		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "plaintext://kafka:9092");
+		props.put(ConsumerConfig.GROUP_ID_CONFIG, "server.broadcast");
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 		return new DefaultKafkaConsumerFactory<>(props);
@@ -51,6 +56,6 @@ public class HcDemoApplication {
 
 	@KafkaListener(topics = "topic", groupId = "test")
 	public void listen(String message) {
-		System.out.println("Received Messasge in group test: " + message);
+		log.info("Received Messasge in group test: " + message);
 	}
 }

@@ -2,6 +2,7 @@ package com.gridgain.hcdemogenerator;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.SpringApplication;
@@ -20,11 +21,12 @@ public class HcDemoGeneratorApplication {
 
 	@Bean
 	public ProducerFactory<String, String> producerFactory() {
-		Map<String, Object> configProps = new HashMap<>();
-		configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka");
-		configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-		configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-		return new DefaultKafkaProducerFactory<>(configProps);
+		Map<String, Object> props = new HashMap<>();
+		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "plaintext://kafka:9092");
+		props.put(ConsumerConfig.GROUP_ID_CONFIG, "server.broadcast");
+		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		return new DefaultKafkaProducerFactory<>(props);
 	}
 
 	@Bean
