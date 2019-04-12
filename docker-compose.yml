@@ -8,3 +8,11 @@ services:
             - backend
     backend:
         build: hc-demo-backend
+        links:
+            - kafka
+    generator:
+        build: hc-demo-generator
+        links:
+            - kafka
+    kafka:
+        image: wurstmeister/kafka

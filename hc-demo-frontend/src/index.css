@@ -13,13 +13,14 @@ code {
     monospace;
 }
 
-table {
-    border-collapse: collapse;
-    font-size: 10px;
+html, body, #root {
+	height: 100%;
 }
 
-th, td {
-  padding: 2px 4px;
-  border: 1px solid black;
-  height: 20px;
+div.ag-row.credit-default {
+  background: #FFCCCC;
+}
+
+div.ag-row.credit-ok {
+  background: #CCFFCC;
 }

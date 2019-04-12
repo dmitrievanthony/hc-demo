@@ -17,6 +17,7 @@
 
 package com.gridgain.hcdemo.core.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -28,5 +29,50 @@ public class BureauBalance {
 
     @Id
     @Column(name = "ID")
+    @JsonProperty("ID")
     private Long id;
+
+    @Column(name = "SK_ID_BUREAU")
+    @JsonProperty("SK_ID_BUREAU")
+    private Long skIdBureau;
+
+    @Column(name = "MONTHS_BALANCE")
+    @JsonProperty("MONTHS_BALANCE")
+    private Long monthsBalance;
+
+    @Column(name = "STATUS")
+    @JsonProperty("STATUS")
+    private String status;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getSkIdBureau() {
+        return skIdBureau;
+    }
+
+    public void setSkIdBureau(Long skIdBureau) {
+        this.skIdBureau = skIdBureau;
+    }
+
+    public Long getMonthsBalance() {
+        return monthsBalance;
+    }
+
+    public void setMonthsBalance(Long monthsBalance) {
+        this.monthsBalance = monthsBalance;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

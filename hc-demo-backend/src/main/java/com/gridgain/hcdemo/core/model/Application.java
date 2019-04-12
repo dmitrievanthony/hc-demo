@@ -34,7 +34,7 @@ public class Application {
 
     @Column(name = "TARGET")
     @JsonProperty("TARGET")
-    private Integer target;
+    private Long target;
 
     @Column(name = "NAME_CONTRACT_TYPE")
     @JsonProperty("NAME_CONTRACT_TYPE")
@@ -54,7 +54,7 @@ public class Application {
 
     @Column(name = "CNT_CHILDREN")
     @JsonProperty("CNT_CHILDREN")
-    private Integer cntChildren;
+    private Long cntChildren;
 
     @Column(name = "AMT_INCOME_TOTAL")
     @JsonProperty("AMT_INCOME_TOTAL")
@@ -98,11 +98,11 @@ public class Application {
 
     @Column(name = "DAYS_BIRTH")
     @JsonProperty("DAYS_BIRTH")
-    private Integer daysBirth;
+    private Long daysBirth;
 
     @Column(name = "DAYS_EMPLOYED")
     @JsonProperty("DAYS_EMPLOYED")
-    private Integer daysEmployed;
+    private Long daysEmployed;
 
     @Column(name = "DAYS_REGISTRATION")
     @JsonProperty("DAYS_REGISTRATION")
@@ -110,7 +110,7 @@ public class Application {
 
     @Column(name = "DAYS_ID_PUBLISH")
     @JsonProperty("DAYS_ID_PUBLISH")
-    private Integer daysIdPublished;
+    private Long daysIdPublished;
 
     @Column(name = "OWN_CAR_AGE")
     @JsonProperty("OWN_CAR_AGE")
@@ -118,27 +118,27 @@ public class Application {
 
     @Column(name = "FLAG_MOBIL")
     @JsonProperty("FLAG_MOBIL")
-    private Integer flagMobil;
+    private Long flagMobil;
 
     @Column(name = "FLAG_EMP_PHONE")
     @JsonProperty("FLAG_EMP_PHONE")
-    private Integer flagEmpPhone;
+    private Long flagEmpPhone;
 
     @Column(name = "FLAG_WORK_PHONE")
     @JsonProperty("FLAG_WORK_PHONE")
-    private Integer flagWorkPhone;
+    private Long flagWorkPhone;
 
     @Column(name = "FLAG_CONT_MOBILE")
     @JsonProperty("FLAG_CONT_MOBILE")
-    private Integer flagContMobile;
+    private Long flagContMobile;
 
     @Column(name = "FLAG_PHONE")
     @JsonProperty("FLAG_PHONE")
-    private Integer flagPhone;
+    private Long flagPhone;
 
     @Column(name = "FLAG_EMAIL")
     @JsonProperty("FLAG_EMAIL")
-    private Integer flagEmail;
+    private Long flagEmail;
 
     @Column(name = "OCCUPATION_TYPE")
     @JsonProperty("OCCUPATION_TYPE")
@@ -150,11 +150,11 @@ public class Application {
 
     @Column(name = "REGION_RATING_CLIENT")
     @JsonProperty("REGION_RATING_CLIENT")
-    private Integer regionRatingClient;
+    private Long regionRatingClient;
 
     @Column(name = "REGION_RATING_CLIENT_W_CITY")
     @JsonProperty("REGION_RATING_CLIENT_W_CITY")
-    private Integer regionRatingClientWCity;
+    private Long regionRatingClientWCity;
 
     @Column(name = "WEEKDAY_APPR_PROCESS_START")
     @JsonProperty("WEEKDAY_APPR_PROCESS_START")
@@ -162,31 +162,31 @@ public class Application {
 
     @Column(name = "HOUR_APPR_PROCESS_START")
     @JsonProperty("HOUR_APPR_PROCESS_START")
-    private Integer hourApprProcessStart;
+    private Long hourApprProcessStart;
 
     @Column(name = "REG_REGION_NOT_LIVE_REGION")
     @JsonProperty("REG_REGION_NOT_LIVE_REGION")
-    private Integer regRegionNotLiveRegion;
+    private Long regRegionNotLiveRegion;
 
     @Column(name = "REG_REGION_NOT_WORK_REGION")
     @JsonProperty("REG_REGION_NOT_WORK_REGION")
-    private Integer regRegionNotWorkRegion;
+    private Long regRegionNotWorkRegion;
 
     @Column(name = "LIVE_REGION_NOT_WORK_REGION")
     @JsonProperty("LIVE_REGION_NOT_WORK_REGION")
-    private Integer liveRegionNotWorkRegion;
+    private Long liveRegionNotWorkRegion;
 
     @Column(name = "REG_CITY_NOT_LIVE_CITY")
     @JsonProperty("REG_CITY_NOT_LIVE_CITY")
-    private Integer regCityNotLiveCity;
+    private Long regCityNotLiveCity;
 
     @Column(name = "REG_CITY_NOT_WORK_CITY")
     @JsonProperty("REG_CITY_NOT_WORK_CITY")
-    private Integer regCityNotWorkCity;
+    private Long regCityNotWorkCity;
 
     @Column(name = "LIVE_CITY_NOT_WORK_CITY")
     @JsonProperty("LIVE_CITY_NOT_WORK_CITY")
-    private Integer liveCityNotWorkCity;
+    private Long liveCityNotWorkCity;
 
     @Column(name = "ORGANIZATION_TYPE")
     @JsonProperty("ORGANIZATION_TYPE")
@@ -414,83 +414,83 @@ public class Application {
 
     @Column(name = "FLAG_DOCUMENT_2")
     @JsonProperty("FLAG_DOCUMENT_2")
-    private Integer flagDocument2;
+    private Long flagDocument2;
 
     @Column(name = "FLAG_DOCUMENT_3")
     @JsonProperty("FLAG_DOCUMENT_3")
-    private Integer flagDocument3;
+    private Long flagDocument3;
 
     @Column(name = "FLAG_DOCUMENT_4")
     @JsonProperty("FLAG_DOCUMENT_4")
-    private Integer flagDocument4;
+    private Long flagDocument4;
 
     @Column(name = "FLAG_DOCUMENT_5")
     @JsonProperty("FLAG_DOCUMENT_5")
-    private Integer flagDocument5;
+    private Long flagDocument5;
 
     @Column(name = "FLAG_DOCUMENT_6")
     @JsonProperty("FLAG_DOCUMENT_6")
-    private Integer flagDocument6;
+    private Long flagDocument6;
 
     @Column(name = "FLAG_DOCUMENT_7")
     @JsonProperty("FLAG_DOCUMENT_7")
-    private Integer flagDocument7;
+    private Long flagDocument7;
 
     @Column(name = "FLAG_DOCUMENT_8")
     @JsonProperty("FLAG_DOCUMENT_8")
-    private Integer flagDocument8;
+    private Long flagDocument8;
 
     @Column(name = "FLAG_DOCUMENT_9")
     @JsonProperty("FLAG_DOCUMENT_9")
-    private Integer flagDocument9;
+    private Long flagDocument9;
 
     @Column(name = "FLAG_DOCUMENT_10")
     @JsonProperty("FLAG_DOCUMENT_10")
-    private Integer flagDocument10;
+    private Long flagDocument10;
 
     @Column(name = "FLAG_DOCUMENT_11")
     @JsonProperty("FLAG_DOCUMENT_11")
-    private Integer flagDocument11;
+    private Long flagDocument11;
 
     @Column(name = "FLAG_DOCUMENT_12")
     @JsonProperty("FLAG_DOCUMENT_12")
-    private Integer flagDocument12;
+    private Long flagDocument12;
 
     @Column(name = "FLAG_DOCUMENT_13")
     @JsonProperty("FLAG_DOCUMENT_13")
-    private Integer flagDocument13;
+    private Long flagDocument13;
 
     @Column(name = "FLAG_DOCUMENT_14")
     @JsonProperty("FLAG_DOCUMENT_14")
-    private Integer flagDocument14;
+    private Long flagDocument14;
 
     @Column(name = "FLAG_DOCUMENT_15")
     @JsonProperty("FLAG_DOCUMENT_15")
-    private Integer flagDocument15;
+    private Long flagDocument15;
 
     @Column(name = "FLAG_DOCUMENT_16")
     @JsonProperty("FLAG_DOCUMENT_16")
-    private Integer flagDocument16;
+    private Long flagDocument16;
 
     @Column(name = "FLAG_DOCUMENT_17")
     @JsonProperty("FLAG_DOCUMENT_17")
-    private Integer flagDocument17;
+    private Long flagDocument17;
 
     @Column(name = "FLAG_DOCUMENT_18")
     @JsonProperty("FLAG_DOCUMENT_18")
-    private Integer flagDocument18;
+    private Long flagDocument18;
 
     @Column(name = "FLAG_DOCUMENT_19")
     @JsonProperty("FLAG_DOCUMENT_19")
-    private Integer flagDocument19;
+    private Long flagDocument19;
 
     @Column(name = "FLAG_DOCUMENT_20")
     @JsonProperty("FLAG_DOCUMENT_20")
-    private Integer flagDocument20;
+    private Long flagDocument20;
 
     @Column(name = "FLAG_DOCUMENT_21")
     @JsonProperty("FLAG_DOCUMENT_21")
-    private Integer flagDocument21;
+    private Long flagDocument21;
 
     @Column(name = "AMT_REQ_CREDIT_BUREAU_HOUR")
     @JsonProperty("AMT_REQ_CREDIT_BUREAU_HOUR")
@@ -524,11 +524,11 @@ public class Application {
         this.id = id;
     }
 
-    public Integer getTarget() {
+    public Long getTarget() {
         return target;
     }
 
-    public void setTarget(Integer target) {
+    public void setTarget(Long target) {
         this.target = target;
     }
 
@@ -564,11 +564,11 @@ public class Application {
         this.flagOwnRealy = flagOwnRealy;
     }
 
-    public Integer getCntChildren() {
+    public Long getCntChildren() {
         return cntChildren;
     }
 
-    public void setCntChildren(Integer cntChildren) {
+    public void setCntChildren(Long cntChildren) {
         this.cntChildren = cntChildren;
     }
 
@@ -652,19 +652,19 @@ public class Application {
         this.regionPopulationRelative = regionPopulationRelative;
     }
 
-    public Integer getDaysBirth() {
+    public Long getDaysBirth() {
         return daysBirth;
     }
 
-    public void setDaysBirth(Integer daysBirth) {
+    public void setDaysBirth(Long daysBirth) {
         this.daysBirth = daysBirth;
     }
 
-    public Integer getDaysEmployed() {
+    public Long getDaysEmployed() {
         return daysEmployed;
     }
 
-    public void setDaysEmployed(Integer daysEmployed) {
+    public void setDaysEmployed(Long daysEmployed) {
         this.daysEmployed = daysEmployed;
     }
 
@@ -676,11 +676,11 @@ public class Application {
         this.daysRegistration = daysRegistration;
     }
 
-    public Integer getDaysIdPublished() {
+    public Long getDaysIdPublished() {
         return daysIdPublished;
     }
 
-    public void setDaysIdPublished(Integer daysIdPublished) {
+    public void setDaysIdPublished(Long daysIdPublished) {
         this.daysIdPublished = daysIdPublished;
     }
 
@@ -692,51 +692,51 @@ public class Application {
         this.ownCarAge = ownCarAge;
     }
 
-    public Integer getFlagMobil() {
+    public Long getFlagMobil() {
         return flagMobil;
     }
 
-    public void setFlagMobil(Integer flagMobil) {
+    public void setFlagMobil(Long flagMobil) {
         this.flagMobil = flagMobil;
     }
 
-    public Integer getFlagEmpPhone() {
+    public Long getFlagEmpPhone() {
         return flagEmpPhone;
     }
 
-    public void setFlagEmpPhone(Integer flagEmpPhone) {
+    public void setFlagEmpPhone(Long flagEmpPhone) {
         this.flagEmpPhone = flagEmpPhone;
     }
 
-    public Integer getFlagWorkPhone() {
+    public Long getFlagWorkPhone() {
         return flagWorkPhone;
     }
 
-    public void setFlagWorkPhone(Integer flagWorkPhone) {
+    public void setFlagWorkPhone(Long flagWorkPhone) {
         this.flagWorkPhone = flagWorkPhone;
     }
 
-    public Integer getFlagContMobile() {
+    public Long getFlagContMobile() {
         return flagContMobile;
     }
 
-    public void setFlagContMobile(Integer flagContMobile) {
+    public void setFlagContMobile(Long flagContMobile) {
         this.flagContMobile = flagContMobile;
     }
 
-    public Integer getFlagPhone() {
+    public Long getFlagPhone() {
         return flagPhone;
     }
 
-    public void setFlagPhone(Integer flagPhone) {
+    public void setFlagPhone(Long flagPhone) {
         this.flagPhone = flagPhone;
     }
 
-    public Integer getFlagEmail() {
+    public Long getFlagEmail() {
         return flagEmail;
     }
 
-    public void setFlagEmail(Integer flagEmail) {
+    public void setFlagEmail(Long flagEmail) {
         this.flagEmail = flagEmail;
     }
 
@@ -756,19 +756,19 @@ public class Application {
         this.cntFamMembers = cntFamMembers;
     }
 
-    public Integer getRegionRatingClient() {
+    public Long getRegionRatingClient() {
         return regionRatingClient;
     }
 
-    public void setRegionRatingClient(Integer regionRatingClient) {
+    public void setRegionRatingClient(Long regionRatingClient) {
         this.regionRatingClient = regionRatingClient;
     }
 
-    public Integer getRegionRatingClientWCity() {
+    public Long getRegionRatingClientWCity() {
         return regionRatingClientWCity;
     }
 
-    public void setRegionRatingClientWCity(Integer regionRatingClientWCity) {
+    public void setRegionRatingClientWCity(Long regionRatingClientWCity) {
         this.regionRatingClientWCity = regionRatingClientWCity;
     }
 
@@ -780,59 +780,59 @@ public class Application {
         this.apprProcessStart = apprProcessStart;
     }
 
-    public Integer getHourApprProcessStart() {
+    public Long getHourApprProcessStart() {
         return hourApprProcessStart;
     }
 
-    public void setHourApprProcessStart(Integer hourApprProcessStart) {
+    public void setHourApprProcessStart(Long hourApprProcessStart) {
         this.hourApprProcessStart = hourApprProcessStart;
     }
 
-    public Integer getRegRegionNotLiveRegion() {
+    public Long getRegRegionNotLiveRegion() {
         return regRegionNotLiveRegion;
     }
 
-    public void setRegRegionNotLiveRegion(Integer regRegionNotLiveRegion) {
+    public void setRegRegionNotLiveRegion(Long regRegionNotLiveRegion) {
         this.regRegionNotLiveRegion = regRegionNotLiveRegion;
     }
 
-    public Integer getRegRegionNotWorkRegion() {
+    public Long getRegRegionNotWorkRegion() {
         return regRegionNotWorkRegion;
     }
 
-    public void setRegRegionNotWorkRegion(Integer regRegionNotWorkRegion) {
+    public void setRegRegionNotWorkRegion(Long regRegionNotWorkRegion) {
         this.regRegionNotWorkRegion = regRegionNotWorkRegion;
     }
 
-    public Integer getLiveRegionNotWorkRegion() {
+    public Long getLiveRegionNotWorkRegion() {
         return liveRegionNotWorkRegion;
     }
 
-    public void setLiveRegionNotWorkRegion(Integer liveRegionNotWorkRegion) {
+    public void setLiveRegionNotWorkRegion(Long liveRegionNotWorkRegion) {
         this.liveRegionNotWorkRegion = liveRegionNotWorkRegion;
     }
 
-    public Integer getRegCityNotLiveCity() {
+    public Long getRegCityNotLiveCity() {
         return regCityNotLiveCity;
     }
 
-    public void setRegCityNotLiveCity(Integer regCityNotLiveCity) {
+    public void setRegCityNotLiveCity(Long regCityNotLiveCity) {
         this.regCityNotLiveCity = regCityNotLiveCity;
     }
 
-    public Integer getRegCityNotWorkCity() {
+    public Long getRegCityNotWorkCity() {
         return regCityNotWorkCity;
     }
 
-    public void setRegCityNotWorkCity(Integer regCityNotWorkCity) {
+    public void setRegCityNotWorkCity(Long regCityNotWorkCity) {
         this.regCityNotWorkCity = regCityNotWorkCity;
     }
 
-    public Integer getLiveCityNotWorkCity() {
+    public Long getLiveCityNotWorkCity() {
         return liveCityNotWorkCity;
     }
 
-    public void setLiveCityNotWorkCity(Integer liveCityNotWorkCity) {
+    public void setLiveCityNotWorkCity(Long liveCityNotWorkCity) {
         this.liveCityNotWorkCity = liveCityNotWorkCity;
     }
 
@@ -1284,163 +1284,163 @@ public class Application {
         this.daysLastPhoneChange = daysLastPhoneChange;
     }
 
-    public Integer getFlagDocument2() {
+    public Long getFlagDocument2() {
         return flagDocument2;
     }
 
-    public void setFlagDocument2(Integer flagDocument2) {
+    public void setFlagDocument2(Long flagDocument2) {
         this.flagDocument2 = flagDocument2;
     }
 
-    public Integer getFlagDocument3() {
+    public Long getFlagDocument3() {
         return flagDocument3;
     }
 
-    public void setFlagDocument3(Integer flagDocument3) {
+    public void setFlagDocument3(Long flagDocument3) {
         this.flagDocument3 = flagDocument3;
     }
 
-    public Integer getFlagDocument4() {
+    public Long getFlagDocument4() {
         return flagDocument4;
     }
 
-    public void setFlagDocument4(Integer flagDocument4) {
+    public void setFlagDocument4(Long flagDocument4) {
         this.flagDocument4 = flagDocument4;
     }
 
-    public Integer getFlagDocument5() {
+    public Long getFlagDocument5() {
         return flagDocument5;
     }
 
-    public void setFlagDocument5(Integer flagDocument5) {
+    public void setFlagDocument5(Long flagDocument5) {
         this.flagDocument5 = flagDocument5;
     }
 
-    public Integer getFlagDocument6() {
+    public Long getFlagDocument6() {
         return flagDocument6;
     }
 
-    public void setFlagDocument6(Integer flagDocument6) {
+    public void setFlagDocument6(Long flagDocument6) {
         this.flagDocument6 = flagDocument6;
     }
 
-    public Integer getFlagDocument7() {
+    public Long getFlagDocument7() {
         return flagDocument7;
     }
 
-    public void setFlagDocument7(Integer flagDocument7) {
+    public void setFlagDocument7(Long flagDocument7) {
         this.flagDocument7 = flagDocument7;
     }
 
-    public Integer getFlagDocument8() {
+    public Long getFlagDocument8() {
         return flagDocument8;
     }
 
-    public void setFlagDocument8(Integer flagDocument8) {
+    public void setFlagDocument8(Long flagDocument8) {
         this.flagDocument8 = flagDocument8;
     }
 
-    public Integer getFlagDocument9() {
+    public Long getFlagDocument9() {
         return flagDocument9;
     }
 
-    public void setFlagDocument9(Integer flagDocument9) {
+    public void setFlagDocument9(Long flagDocument9) {
         this.flagDocument9 = flagDocument9;
     }
 
-    public Integer getFlagDocument10() {
+    public Long getFlagDocument10() {
         return flagDocument10;
     }
 
-    public void setFlagDocument10(Integer flagDocument10) {
+    public void setFlagDocument10(Long flagDocument10) {
         this.flagDocument10 = flagDocument10;
     }
 
-    public Integer getFlagDocument11() {
+    public Long getFlagDocument11() {
         return flagDocument11;
     }
 
-    public void setFlagDocument11(Integer flagDocument11) {
+    public void setFlagDocument11(Long flagDocument11) {
         this.flagDocument11 = flagDocument11;
     }
 
-    public Integer getFlagDocument12() {
+    public Long getFlagDocument12() {
         return flagDocument12;
     }
 
-    public void setFlagDocument12(Integer flagDocument12) {
+    public void setFlagDocument12(Long flagDocument12) {
         this.flagDocument12 = flagDocument12;
     }
 
-    public Integer getFlagDocument13() {
+    public Long getFlagDocument13() {
         return flagDocument13;
     }
 
-    public void setFlagDocument13(Integer flagDocument13) {
+    public void setFlagDocument13(Long flagDocument13) {
         this.flagDocument13 = flagDocument13;
     }
 
-    public Integer getFlagDocument14() {
+    public Long getFlagDocument14() {
         return flagDocument14;
     }
 
-    public void setFlagDocument14(Integer flagDocument14) {
+    public void setFlagDocument14(Long flagDocument14) {
         this.flagDocument14 = flagDocument14;
     }
 
-    public Integer getFlagDocument15() {
+    public Long getFlagDocument15() {
         return flagDocument15;
     }
 
-    public void setFlagDocument15(Integer flagDocument15) {
+    public void setFlagDocument15(Long flagDocument15) {
         this.flagDocument15 = flagDocument15;
     }
 
-    public Integer getFlagDocument16() {
+    public Long getFlagDocument16() {
         return flagDocument16;
     }
 
-    public void setFlagDocument16(Integer flagDocument16) {
+    public void setFlagDocument16(Long flagDocument16) {
         this.flagDocument16 = flagDocument16;
     }
 
-    public Integer getFlagDocument17() {
+    public Long getFlagDocument17() {
         return flagDocument17;
     }
 
-    public void setFlagDocument17(Integer flagDocument17) {
+    public void setFlagDocument17(Long flagDocument17) {
         this.flagDocument17 = flagDocument17;
     }
 
-    public Integer getFlagDocument18() {
+    public Long getFlagDocument18() {
         return flagDocument18;
     }
 
-    public void setFlagDocument18(Integer flagDocument18) {
+    public void setFlagDocument18(Long flagDocument18) {
         this.flagDocument18 = flagDocument18;
     }
 
-    public Integer getFlagDocument19() {
+    public Long getFlagDocument19() {
         return flagDocument19;
     }
 
-    public void setFlagDocument19(Integer flagDocument19) {
+    public void setFlagDocument19(Long flagDocument19) {
         this.flagDocument19 = flagDocument19;
     }
 
-    public Integer getFlagDocument20() {
+    public Long getFlagDocument20() {
         return flagDocument20;
     }
 
-    public void setFlagDocument20(Integer flagDocument20) {
+    public void setFlagDocument20(Long flagDocument20) {
         this.flagDocument20 = flagDocument20;
     }
 
-    public Integer getFlagDocument21() {
+    public Long getFlagDocument21() {
         return flagDocument21;
     }
 
-    public void setFlagDocument21(Integer flagDocument21) {
+    public void setFlagDocument21(Long flagDocument21) {
         this.flagDocument21 = flagDocument21;
     }
 
