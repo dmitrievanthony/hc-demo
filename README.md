@@ -8,6 +8,9 @@ HomeCredit Default Risk Scoring (see [Kaggle competition](https://www.kaggle.com
 cd hc-demo-backend
 mvn clean package
 
+cd ../hc-demo-generator
+mvn clean package
+
 cd ../hc-demo-frontend
 npm run build
 
