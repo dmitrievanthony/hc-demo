@@ -1,1 +1,2 @@
 server.servlet.context-path: /api
+spring.datasource.url: jdbc:h2:file:~/hcdb;DB_CLOSE_ON_EXIT=TRUE;

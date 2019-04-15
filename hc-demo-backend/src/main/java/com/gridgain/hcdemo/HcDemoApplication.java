@@ -27,7 +27,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 
-@EnableKafka
+//@EnableKafka
 @SpringBootApplication
 public class HcDemoApplication {
 
@@ -37,25 +37,25 @@ public class HcDemoApplication {
 		SpringApplication.run(HcDemoApplication.class, args);
 	}
 
-	@Bean
-	public ConsumerFactory<String, String> consumerFactory() {
-		Map<String, Object> props = new HashMap<>();
-		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "plaintext://kafka:9092");
-		props.put(ConsumerConfig.GROUP_ID_CONFIG, "server.broadcast");
-		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-		return new DefaultKafkaConsumerFactory<>(props);
-	}
-
-	@Bean
-	public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
-		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-		factory.setConsumerFactory(consumerFactory());
-		return factory;
-	}
-
-	@KafkaListener(topics = "topic", groupId = "test")
-	public void listen(String message) {
-		log.info("Received Messasge in group test: " + message);
-	}
+//	@Bean
+//	public ConsumerFactory<String, String> consumerFactory() {
+//		Map<String, Object> props = new HashMap<>();
+//		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "plaintext://kafka:9092");
+//		props.put(ConsumerConfig.GROUP_ID_CONFIG, "server.broadcast");
+//		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+//		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+//		return new DefaultKafkaConsumerFactory<>(props);
+//	}
+//
+//	@Bean
+//	public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
+//		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+//		factory.setConsumerFactory(consumerFactory());
+//		return factory;
+//	}
+//
+//	@KafkaListener(topics = "topic", groupId = "test")
+//	public void listen(String message) {
+//		log.info("Received Messasge in group test: " + message);
+//	}
 }
