@@ -5,26 +5,23 @@ services:
         ports:
             - '8080:80'
         links:
-            - backend
-    backend:
-        build: hc-demo-backend
+            - api
+
+    api:
+        build: hc-demo-backend/hc-demo-api
+        environment:
+            - spring_profiles_active=prod
+            - loader_batch-size=100000
+            - loader_rows-to-be-loaded=200000
         links:
-            - kafka
+            - ignite
+
     generator:
-        build: hc-demo-generator
-        links:
-            - kafka
-    kafka:
-        image: wurstmeister/kafka
+        build: hc-demo-backend/hc-demo-generator
         environment:
-            - KAFKA_ADVERTISED_HOST_NAME=kafka
-            - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-            - ALLOW_PLAINTEXT_LISTENER=yes
+            - spring_profiles_active=prod
         links:
-            - zookeeper
-    zookeeper:
-        image: bitnami/zookeeper
-        ports:
-            - '2181:2181'
-        environment:
-            - ALLOW_ANONYMOUS_LOGIN=yes
+            - ignite
+
+    ignite:
+        build: ignite
