@@ -24,4 +24,4 @@ services:
             - ignite
 
     ignite:
-        build: ignite
+        image: apacheignite/ignite:2.7.0
