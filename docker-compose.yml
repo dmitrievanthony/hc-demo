@@ -11,8 +11,8 @@ services:
         build: hc-demo-backend/hc-demo-api
         environment:
             - spring_profiles_active=prod
-            - loader_batch-size=100000
-            - loader_rows-to-be-loaded=200000
+            - loader_batch-size=10000
+            - loader_rows-to-be-loaded=20000
         links:
             - ignite
 
@@ -24,4 +24,6 @@ services:
             - ignite
 
     ignite:
-        image: apacheignite/ignite:2.7.0
+        build: ignite
+        environment:
+            - IGNITE_QUIET=true

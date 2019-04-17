@@ -15,22 +15,32 @@
  * limitations under the License.
  */
 
-package com.gridgain.hcdemo;
+package com.gridgain.hcdemo.generator;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import org.apache.ignite.Ignite;
+import org.apache.ignite.ml.inference.Model;
+import org.apache.ignite.ml.math.primitives.vector.NamedVector;
+import org.apache.ignite.ml.math.primitives.vector.impl.DelegatingNamedVector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class HcDemoAPIApplicationStartupListener {
+public class HcDemoGeneratorApplicationEntrypoint {
 
     @Autowired
-    private DataLoader dataLoader;
+    private Model<NamedVector, Future<Double>> model;
 
-    @EventListener
-    public void onApplicationEvent(ContextRefreshedEvent event) throws IOException {
-        dataLoader.loadData();
+    @Scheduled(fixedRate = 1000)
+    public void generate() throws ExecutionException, InterruptedException {
+        System.out.println("Prediction: " + model.predict(new DelegatingNamedVector()).get());
     }
 }
