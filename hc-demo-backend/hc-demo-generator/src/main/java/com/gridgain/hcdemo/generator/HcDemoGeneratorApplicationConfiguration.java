@@ -67,11 +67,11 @@ public class HcDemoGeneratorApplicationConfiguration {
     }
 
     @Bean
-    public ModelReader modelReader(ModelStorage modelStorage, @Value("${inference.model:agaricus-model.txt}") String modelResource) {
+    public ModelReader modelReader(ModelStorage modelStorage, @Value("${inference.model:model.txt}") String modelResource) {
         try (InputStream is = HcDemoGeneratorApplicationConfiguration.class.getClassLoader().getResourceAsStream(modelResource)) {
             byte[] model = IOUtils.readFully(is, -1, false);
 
-            String path = "/hc/agaricus-model.txt";
+            String path = "/hc/model.txt";
 
             modelStorage.mkdirs("/hc");
             modelStorage.putFile(path, model);

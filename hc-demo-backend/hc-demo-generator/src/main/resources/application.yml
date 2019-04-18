@@ -1,1 +1,2 @@
 ignite.hosts: ignite
+spring.jpa.hibernate.ddl-auto: none
