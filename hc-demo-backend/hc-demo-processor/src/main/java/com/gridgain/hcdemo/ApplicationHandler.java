@@ -125,7 +125,7 @@ public class ApplicationHandler implements IgniteRunnable {
 
         long end = System.nanoTime();
 
-        System.out.println("Time: " + (end - start) / 1_000_000.0 + "ms");
+//        System.out.println("Time: " + (end - start) / 1_000_000.0 + "ms");
     }
 
     private Map<String, String> fieldMapping() {
@@ -157,51 +157,21 @@ public class ApplicationHandler implements IgniteRunnable {
 
         Map<String, Double> values = new HashMap<>();
 
-//        values.put(fieldMapping.get("PAYMENT_RATE"), 0.0);
-        if (application.getExtSource3() != null)
-            values.put(fieldMapping.get("EXT_SOURCE_3"), application.getExtSource3());
+        for (Field field : Application.class.getDeclaredFields()) {
+            field.setAccessible(true);
+            Object value = field.get(application);
 
-        if (application.getExtSource1() != null)
-            values.put(fieldMapping.get("EXT_SOURCE_1"), application.getExtSource1());
+            JsonProperty jsonProperty = field.getAnnotation(JsonProperty.class);
+            if (jsonProperty != null && value instanceof Number && fieldMapping.containsKey(jsonProperty.value())) {
+                values.put(fieldMapping.get(jsonProperty.value()), ((Number)value).doubleValue());
+            }
+        }
 
-        if (application.getExtSource2() != null)
-            values.put(fieldMapping.get("EXT_SOURCE_2"), application.getExtSource2());
+        NamedVector vector = VectorUtils.of(values);
 
-        if (application.getDaysBirth() != null)
-            values.put(fieldMapping.get("DAYS_BIRTH"), application.getDaysBirth().doubleValue());
+        double prediction = model.predict(vector);
 
-        if (application.getAmtAnnuity() != null)
-            values.put(fieldMapping.get("AMT_ANNUITY"), application.getAmtAnnuity());
-
-        if (application.getDaysEmployed() != null)
-            values.put(fieldMapping.get("DAYS_EMPLOYED"), application.getDaysEmployed().doubleValue());
-
-        if (application.getDaysIdPublished() != null)
-            values.put(fieldMapping.get("DAYS_ID_PUBLISH"), application.getDaysIdPublished().doubleValue());
-//        values.put(fieldMapping.get("APPROVED_CNT_PAYMENT_MEAN"), 0.0);
-//        values.put(fieldMapping.get("INSTAL_DAYS_ENTRY_PAYMENT_MAX"), 0.0);
-//        values.put(fieldMapping.get("ACTIVE_DAYS_CREDIT_MAX"), 0.0);
-//        values.put(fieldMapping.get("DAYS_EMPLOYED_PERC"), 0.0);
-//        values.put(fieldMapping.get("ACTIVE_DAYS_CREDIT_ENDDATE_MIN"), 0.0);
-//        values.put(fieldMapping.get("INSTAL_DPD_MEAN"), 0.0);
-
-        if (application.getDaysRegistration() != null)
-            values.put(fieldMapping.get("DAYS_REGISTRATION"), application.getDaysRegistration());
-//        values.put(fieldMapping.get("ANNUITY_INCOME_PERC"), 0.0);
-
-        if (application.getRegionPopulationRelative() != null)
-            values.put(fieldMapping.get("REGION_POPULATION_RELATIVE"), application.getRegionPopulationRelative());
-
-        if (application.getAmtCredit() != null)
-            values.put(fieldMapping.get("AMT_CREDIT"), application.getAmtCredit());
-//        values.put(fieldMapping.get("CLOSED_DAYS_CREDIT_MAX"), 0.0);
-//        values.put(fieldMapping.get("PREV_CNT_PAYMENT_MEAN"), 0.0);
-//        values.put(fieldMapping.get("INSTAL_AMT_PAYMENT_SUM"), 0.0);
-//        values.put(fieldMapping.get("INSTAL_DBD_SUM"), 0.0);
-
-        double prediction = model.predict(VectorUtils.of(values));
-
-        System.out.println("Prediction: " + prediction);
+        System.out.println("Data: " + namedVectorToString(vector) + ", target: " + application.getTarget() + ", prediction: " + prediction);
 
         return prediction > 0.5 ? 1L : 0;
     }
@@ -222,6 +192,20 @@ public class ApplicationHandler implements IgniteRunnable {
         model = (IgniteModel<NamedVector, Double>)ignite.cluster().nodeLocalMap().get("MODEL");
 
         fieldMapping = fieldMapping();
+    }
+
+    private String namedVectorToString(NamedVector vector) {
+        StringBuilder res = new StringBuilder();
+
+        res.append("{");
+        for (String key : vector.getKeys()) {
+            res.append(key + ":" + vector.get(key) + ", ");
+        }
+        if (res.length() > 1)
+            res.delete(res.length() - 2, res.length());
+        res.append("}");
+
+        return res.toString();
     }
 
     private byte[] readResource(String resource) throws IOException {
