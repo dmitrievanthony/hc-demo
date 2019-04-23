@@ -17,15 +17,21 @@
 
 package com.gridgain.hcdemo.api;
 
-import com.gridgain.hcdemo.repository.CreditCardBalanceRepository;
+import com.gridgain.hcdemo.model.CreditCardBalance;
+import org.apache.ignite.IgniteCache;
+import org.apache.ignite.cache.affinity.AffinityKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/credit-card-balance")
+@RequestMapping("/api/credit-card-balance")
 public class CreditCardBalanceAPI {
 
+    private static final Logger log = LoggerFactory.getLogger(CreditCardBalanceAPI.class);
+
     @Autowired
-    private CreditCardBalanceRepository cardBalanceRepository;
+    private IgniteCache<AffinityKey<Long>, CreditCardBalance> creditCardBalanceCache;
 }

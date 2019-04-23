@@ -27,6 +27,22 @@
             <groupId>com.gridgain</groupId>
             <artifactId>hc-demo-model</artifactId>
             <version>${project.version}</version>
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>com.h2database</groupId>-->
+                    <!--<artifactId>h2</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.h2database</groupId>-->
+            <!--<artifactId>h2</artifactId>-->
+            <!--<version>1.4.197</version>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>com.gridgain</groupId>
+            <artifactId>hc-demo-processor</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
@@ -34,22 +50,25 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-ml</artifactId>
+            <artifactId>ignite-indexing</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-slf4j</artifactId>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.197</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-ml-xgboost-model-parser</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.ignite</groupId>-->
+            <!--<artifactId>ignite-ml</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.ignite</groupId>-->
+            <!--<artifactId>ignite-slf4j</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.ignite</groupId>-->
+            <!--<artifactId>ignite-ml-xgboost-model-parser</artifactId>-->
+        <!--</dependency>-->
     </dependencies>
 
 </project>

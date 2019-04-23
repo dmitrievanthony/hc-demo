@@ -15,23 +15,20 @@
  * limitations under the License.
  */
 
-package com.gridgain.hcdemo.api;
+package com.gridgain.hcdemo.preprocessor;
 
-import com.gridgain.hcdemo.model.PreviousApplication;
-import org.apache.ignite.IgniteCache;
-import org.apache.ignite.cache.affinity.AffinityKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.gridgain.hcdemo.model.POSCashBalance;
+import org.apache.ignite.Ignite;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Component;
 
-@RestController
-@RequestMapping("/api/previous-application")
-public class PreviousApplicationAPI {
-
-    private static final Logger log = LoggerFactory.getLogger(PreviousApplicationAPI.class);
+@Component
+public class POSCashBalancePreprocessor implements Preprocessor<POSCashBalance> {
 
     @Autowired
-    private IgniteCache<AffinityKey<Long>, PreviousApplication> previousApplicationCache;
+    private Ignite ignite;
+
+    @Override public POSCashBalance preprocess(POSCashBalance input) {
+        return input;
+    }
 }

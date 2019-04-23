@@ -17,15 +17,21 @@
 
 package com.gridgain.hcdemo.api;
 
-import com.gridgain.hcdemo.repository.InstallmentPaymentRepository;
+import com.gridgain.hcdemo.model.InstallmentPayment;
+import org.apache.ignite.IgniteCache;
+import org.apache.ignite.cache.affinity.AffinityKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/installment-payment")
+@RequestMapping("/api/installment-payment")
 public class InstallmentPaymentAPI {
 
+    private static final Logger log = LoggerFactory.getLogger(InstallmentPaymentAPI.class);
+
     @Autowired
-    private InstallmentPaymentRepository installmentPaymentRepository;
+    private IgniteCache<AffinityKey<Long>, InstallmentPayment> installmentPaymentCache;
 }

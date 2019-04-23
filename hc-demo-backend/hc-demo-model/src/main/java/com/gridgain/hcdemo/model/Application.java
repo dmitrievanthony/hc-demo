@@ -17,504 +17,384 @@
 
 package com.gridgain.hcdemo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.io.Serializable;
+import org.apache.ignite.cache.affinity.AffinityKey;
+import org.apache.ignite.cache.affinity.AffinityKeyMapped;
 
-@Entity
-@Table(name = "APPLICATION")
-public class Application {
+public class Application implements Identifiable<Long>, Serializable {
 
-    @Id
-    @Column(name = "SK_ID_CURR")
+    @AffinityKeyMapped
     @JsonProperty("SK_ID_CURR")
     private Long id;
 
-    @Column(name = "TARGET")
     @JsonProperty("TARGET")
     private Long target;
 
-    @Column(name = "NAME_CONTRACT_TYPE")
     @JsonProperty("NAME_CONTRACT_TYPE")
     private String contractType;
 
-    @Column(name = "CODE_GENDER")
     @JsonProperty("CODE_GENDER")
     private String codeGender;
 
-    @Column(name = "FLAG_OWN_CAR")
     @JsonProperty("FLAG_OWN_CAR")
     private String flagOwnCar;
 
-    @Column(name = "FLAG_OWN_REALTY")
     @JsonProperty("FLAG_OWN_REALTY")
     private String flagOwnRealy;
 
-    @Column(name = "CNT_CHILDREN")
     @JsonProperty("CNT_CHILDREN")
     private Long cntChildren;
 
-    @Column(name = "AMT_INCOME_TOTAL")
     @JsonProperty("AMT_INCOME_TOTAL")
     private Double amtIncomeTotal;
 
-    @Column(name = "AMT_CREDIT")
     @JsonProperty("AMT_CREDIT")
     private Double amtCredit;
 
-    @Column(name = "AMT_ANNUITY")
     @JsonProperty("AMT_ANNUITY")
     private Double amtAnnuity;
 
-    @Column(name = "AMT_GOODS_PRICE")
     @JsonProperty("AMT_GOODS_PRICE")
     private Double amtGoodsPrice;
 
-    @Column(name = "NAME_TYPE_SUITE")
     @JsonProperty("NAME_TYPE_SUITE")
     private String nameTypeSuite;
 
-    @Column(name = "NAME_INCOME_TYPE")
     @JsonProperty("NAME_INCOME_TYPE")
     private String nameIncomeType;
 
-    @Column(name = "NAME_EDUCATION_TYPE")
     @JsonProperty("NAME_EDUCATION_TYPE")
     private String nameEducationType;
 
-    @Column(name = "NAME_FAMILY_STATUS")
     @JsonProperty("NAME_FAMILY_STATUS")
     private String nameFamilyStatus;
 
-    @Column(name = "NAME_HOUSING_TYPE")
     @JsonProperty("NAME_HOUSING_TYPE")
     private String nameHousingType;
 
-    @Column(name = "REGION_POPULATION_RELATIVE")
     @JsonProperty("REGION_POPULATION_RELATIVE")
     private Double regionPopulationRelative;
 
-    @Column(name = "DAYS_BIRTH")
     @JsonProperty("DAYS_BIRTH")
     private Long daysBirth;
 
-    @Column(name = "DAYS_EMPLOYED")
     @JsonProperty("DAYS_EMPLOYED")
     private Long daysEmployed;
 
-    @Column(name = "DAYS_REGISTRATION")
     @JsonProperty("DAYS_REGISTRATION")
     private Double daysRegistration;
 
-    @Column(name = "DAYS_ID_PUBLISH")
     @JsonProperty("DAYS_ID_PUBLISH")
     private Long daysIdPublished;
 
-    @Column(name = "OWN_CAR_AGE")
     @JsonProperty("OWN_CAR_AGE")
     private Double ownCarAge;
 
-    @Column(name = "FLAG_MOBIL")
     @JsonProperty("FLAG_MOBIL")
     private Long flagMobil;
 
-    @Column(name = "FLAG_EMP_PHONE")
     @JsonProperty("FLAG_EMP_PHONE")
     private Long flagEmpPhone;
 
-    @Column(name = "FLAG_WORK_PHONE")
     @JsonProperty("FLAG_WORK_PHONE")
     private Long flagWorkPhone;
 
-    @Column(name = "FLAG_CONT_MOBILE")
     @JsonProperty("FLAG_CONT_MOBILE")
     private Long flagContMobile;
 
-    @Column(name = "FLAG_PHONE")
     @JsonProperty("FLAG_PHONE")
     private Long flagPhone;
 
-    @Column(name = "FLAG_EMAIL")
     @JsonProperty("FLAG_EMAIL")
     private Long flagEmail;
 
-    @Column(name = "OCCUPATION_TYPE")
     @JsonProperty("OCCUPATION_TYPE")
     private String occupationType;
 
-    @Column(name = "CNT_FAM_MEMBERS")
     @JsonProperty("CNT_FAM_MEMBERS")
     private Double cntFamMembers;
 
-    @Column(name = "REGION_RATING_CLIENT")
     @JsonProperty("REGION_RATING_CLIENT")
     private Long regionRatingClient;
 
-    @Column(name = "REGION_RATING_CLIENT_W_CITY")
     @JsonProperty("REGION_RATING_CLIENT_W_CITY")
     private Long regionRatingClientWCity;
 
-    @Column(name = "WEEKDAY_APPR_PROCESS_START")
     @JsonProperty("WEEKDAY_APPR_PROCESS_START")
     private String apprProcessStart;
 
-    @Column(name = "HOUR_APPR_PROCESS_START")
     @JsonProperty("HOUR_APPR_PROCESS_START")
     private Long hourApprProcessStart;
 
-    @Column(name = "REG_REGION_NOT_LIVE_REGION")
     @JsonProperty("REG_REGION_NOT_LIVE_REGION")
     private Long regRegionNotLiveRegion;
 
-    @Column(name = "REG_REGION_NOT_WORK_REGION")
     @JsonProperty("REG_REGION_NOT_WORK_REGION")
     private Long regRegionNotWorkRegion;
 
-    @Column(name = "LIVE_REGION_NOT_WORK_REGION")
     @JsonProperty("LIVE_REGION_NOT_WORK_REGION")
     private Long liveRegionNotWorkRegion;
 
-    @Column(name = "REG_CITY_NOT_LIVE_CITY")
     @JsonProperty("REG_CITY_NOT_LIVE_CITY")
     private Long regCityNotLiveCity;
 
-    @Column(name = "REG_CITY_NOT_WORK_CITY")
     @JsonProperty("REG_CITY_NOT_WORK_CITY")
     private Long regCityNotWorkCity;
 
-    @Column(name = "LIVE_CITY_NOT_WORK_CITY")
     @JsonProperty("LIVE_CITY_NOT_WORK_CITY")
     private Long liveCityNotWorkCity;
 
-    @Column(name = "ORGANIZATION_TYPE")
     @JsonProperty("ORGANIZATION_TYPE")
     private String organizationType;
 
-    @Column(name = "EXT_SOURCE_1")
     @JsonProperty("EXT_SOURCE_1")
     private Double extSource1;
 
-    @Column(name = "EXT_SOURCE_2")
     @JsonProperty("EXT_SOURCE_2")
     private Double extSource2;
 
-    @Column(name = "EXT_SOURCE_3")
     @JsonProperty("EXT_SOURCE_3")
     private Double extSource3;
 
-    @Column(name = "APARTMENTS_AVG")
     @JsonProperty("APARTMENTS_AVG")
     private Double apartmentsAvg;
 
-    @Column(name = "BASEMENTAREA_AVG")
     @JsonProperty("BASEMENTAREA_AVG")
     private Double basementareaAvg;
 
-    @Column(name = "YEARS_BEGINEXPLUATATION_AVG")
     @JsonProperty("YEARS_BEGINEXPLUATATION_AVG")
     private Double yearsBeginexpluatationAvg;
 
-    @Column(name = "YEARS_BUILD_AVG")
     @JsonProperty("YEARS_BUILD_AVG")
     private Double yearsBuildAvg;
 
-    @Column(name = "COMMONAREA_AVG")
     @JsonProperty("COMMONAREA_AVG")
     private Double commonareaAvg;
 
-    @Column(name = "ELEVATORS_AVG")
     @JsonProperty("ELEVATORS_AVG")
     private Double elevatorsAvg;
 
-    @Column(name = "ENTRANCES_AVG")
     @JsonProperty("ENTRANCES_AVG")
     private Double entrancesAvg;
 
-    @Column(name = "FLOORSMAX_AVG")
     @JsonProperty("FLOORSMAX_AVG")
     private Double floorsmaxAvg;
 
-    @Column(name = "FLOORSMIN_AVG")
     @JsonProperty("FLOORSMIN_AVG")
     private Double floorsminAvg;
 
-    @Column(name = "LANDAREA_AVG")
     @JsonProperty("LANDAREA_AVG")
     private Double landareaAvg;
 
-    @Column(name = "LIVINGAPARTMENTS_AVG")
     @JsonProperty("LIVINGAPARTMENTS_AVG")
     private Double livingapartmentsAvg;
 
-    @Column(name = "LIVINGAREA_AVG")
     @JsonProperty("LIVINGAREA_AVG")
     private Double livingareaAvg;
 
-    @Column(name = "NONLIVINGAPARTMENTS_AVG")
     @JsonProperty("NONLIVINGAPARTMENTS_AVG")
     private Double nonlivingapartmentsAvg;
 
-    @Column(name = "NONLIVINGAREA_AVG")
     @JsonProperty("NONLIVINGAREA_AVG")
     private Double nonlivingareaAvg;
 
-    @Column(name = "APARTMENTS_MODE")
     @JsonProperty("APARTMENTS_MODE")
     private Double apartmentsMode;
 
-    @Column(name = "BASEMENTAREA_MODE")
     @JsonProperty("BASEMENTAREA_MODE")
     private Double basementareaMode;
 
-    @Column(name = "YEARS_BEGINEXPLUATATION_MODE")
     @JsonProperty("YEARS_BEGINEXPLUATATION_MODE")
     private Double yearsBeginexpluatationMode;
 
-    @Column(name = "YEARS_BUILD_MODE")
     @JsonProperty("YEARS_BUILD_MODE")
     private Double yearsBuildMode;
 
-    @Column(name = "COMMONAREA_MODE")
     @JsonProperty("COMMONAREA_MODE")
     private Double commonareaMode;
 
-    @Column(name = "ELEVATORS_MODE")
     @JsonProperty("ELEVATORS_MODE")
     private Double elevatorsMode;
 
-    @Column(name = "ENTRANCES_MODE")
     @JsonProperty("ENTRANCES_MODE")
     private Double entracesMode;
 
-    @Column(name = "FLOORSMAX_MODE")
     @JsonProperty("FLOORSMAX_MODE")
     private Double floormaxMode;
 
-    @Column(name = "FLOORSMIN_MODE")
     @JsonProperty("FLOORSMIN_MODE")
     private Double floorminMode;
 
-    @Column(name = "LANDAREA_MODE")
     @JsonProperty("LANDAREA_MODE")
     private Double landareaMode;
 
-    @Column(name = "LIVINGAPARTMENTS_MODE")
     @JsonProperty("LIVINGAPARTMENTS_MODE")
     private Double livingapartmentsMode;
 
-    @Column(name = "LIVINGAREA_MODE")
     @JsonProperty("LIVINGAREA_MODE")
     private Double livingareaMode;
 
-    @Column(name = "NONLIVINGAPARTMENTS_MODE")
     @JsonProperty("NONLIVINGAPARTMENTS_MODE")
     private Double nonlivingapartmentsMode;
 
-    @Column(name = "NONLIVINGAREA_MODE")
     @JsonProperty("NONLIVINGAREA_MODE")
     private Double nonlivingareaMode;
 
-    @Column(name = "APARTMENTS_MEDI")
     @JsonProperty("APARTMENTS_MEDI")
     private Double apartmentsMedi;
 
-    @Column(name = "BASEMENTAREA_MEDI")
     @JsonProperty("BASEMENTAREA_MEDI")
     private Double basementareaMedi;
 
-    @Column(name = "YEARS_BEGINEXPLUATATION_MEDI")
     @JsonProperty("YEARS_BEGINEXPLUATATION_MEDI")
     private Double yearsBeginexpluatationMedi;
 
-    @Column(name = "YEARS_BUILD_MEDI")
     @JsonProperty("YEARS_BUILD_MEDI")
     private Double yearsBuildMedi;
 
-    @Column(name = "COMMONAREA_MEDI")
     @JsonProperty("COMMONAREA_MEDI")
     private Double commonareaMedi;
 
-    @Column(name = "ELEVATORS_MEDI")
     @JsonProperty("ELEVATORS_MEDI")
     private Double elevatorsMedi;
 
-    @Column(name = "ENTRANCES_MEDI")
     @JsonProperty("ENTRANCES_MEDI")
     private Double entrancesMedi;
 
-    @Column(name = "FLOORSMAX_MEDI")
     @JsonProperty("FLOORSMAX_MEDI")
     private Double floorsmaxMedi;
 
-    @Column(name = "FLOORSMIN_MEDI")
     @JsonProperty("FLOORSMIN_MEDI")
     private Double floorsminMedi;
 
-    @Column(name = "LANDAREA_MEDI")
     @JsonProperty("LANDAREA_MEDI")
     private Double landareaMedi;
 
-    @Column(name = "LIVINGAPARTMENTS_MEDI")
     @JsonProperty("LIVINGAPARTMENTS_MEDI")
     private Double livingapartmentsMedi;
 
-    @Column(name = "LIVINGAREA_MEDI")
     @JsonProperty("LIVINGAREA_MEDI")
     private Double livingareaMedi;
 
-    @Column(name = "NONLIVINGAPARTMENTS_MEDI")
     @JsonProperty("NONLIVINGAPARTMENTS_MEDI")
     private Double nonlivingapartmentsMedi;
 
-    @Column(name = "NONLIVINGAREA_MEDI")
     @JsonProperty("NONLIVINGAREA_MEDI")
     private Double nonlivingareaMedi;
 
-    @Column(name = "FONDKAPREMONT_MODE")
     @JsonProperty("FONDKAPREMONT_MODE")
     private String fondkapremontMode;
 
-    @Column(name = "HOUSETYPE_MODE")
     @JsonProperty("HOUSETYPE_MODE")
     private String housetypeMode;
 
-    @Column(name = "TOTALAREA_MODE")
     @JsonProperty("TOTALAREA_MODE")
     private Double totalareaMode;
 
-    @Column(name = "WALLSMATERIAL_MODE")
     @JsonProperty("WALLSMATERIAL_MODE")
     private String wallsmaterialMode;
 
-    @Column(name = "EMERGENCYSTATE_MODE")
     @JsonProperty("EMERGENCYSTATE_MODE")
     private String emergencystateMode;
 
-    @Column(name = "OBS_30_CNT_SOCIAL_CIRCLE")
     @JsonProperty("OBS_30_CNT_SOCIAL_CIRCLE")
     private Double osb30CntSocialCircle;
 
-    @Column(name = "DEF_30_CNT_SOCIAL_CIRCLE")
     @JsonProperty("DEF_30_CNT_SOCIAL_CIRCLE")
     private Double def30CntSocialCircle;
 
-    @Column(name = "OBS_60_CNT_SOCIAL_CIRCLE")
     @JsonProperty("OBS_60_CNT_SOCIAL_CIRCLE")
     private Double osb60CntSocialCircle;
 
-    @Column(name = "DEF_60_CNT_SOCIAL_CIRCLE")
     @JsonProperty("DEF_60_CNT_SOCIAL_CIRCLE")
     private Double def60CntSocialCircle;
 
-    @Column(name = "DAYS_LAST_PHONE_CHANGE")
     @JsonProperty("DAYS_LAST_PHONE_CHANGE")
     private Double daysLastPhoneChange;
 
-    @Column(name = "FLAG_DOCUMENT_2")
     @JsonProperty("FLAG_DOCUMENT_2")
     private Long flagDocument2;
 
-    @Column(name = "FLAG_DOCUMENT_3")
     @JsonProperty("FLAG_DOCUMENT_3")
     private Long flagDocument3;
 
-    @Column(name = "FLAG_DOCUMENT_4")
     @JsonProperty("FLAG_DOCUMENT_4")
     private Long flagDocument4;
 
-    @Column(name = "FLAG_DOCUMENT_5")
     @JsonProperty("FLAG_DOCUMENT_5")
     private Long flagDocument5;
 
-    @Column(name = "FLAG_DOCUMENT_6")
     @JsonProperty("FLAG_DOCUMENT_6")
     private Long flagDocument6;
 
-    @Column(name = "FLAG_DOCUMENT_7")
     @JsonProperty("FLAG_DOCUMENT_7")
     private Long flagDocument7;
 
-    @Column(name = "FLAG_DOCUMENT_8")
     @JsonProperty("FLAG_DOCUMENT_8")
     private Long flagDocument8;
 
-    @Column(name = "FLAG_DOCUMENT_9")
     @JsonProperty("FLAG_DOCUMENT_9")
     private Long flagDocument9;
 
-    @Column(name = "FLAG_DOCUMENT_10")
     @JsonProperty("FLAG_DOCUMENT_10")
     private Long flagDocument10;
 
-    @Column(name = "FLAG_DOCUMENT_11")
     @JsonProperty("FLAG_DOCUMENT_11")
     private Long flagDocument11;
 
-    @Column(name = "FLAG_DOCUMENT_12")
     @JsonProperty("FLAG_DOCUMENT_12")
     private Long flagDocument12;
 
-    @Column(name = "FLAG_DOCUMENT_13")
     @JsonProperty("FLAG_DOCUMENT_13")
     private Long flagDocument13;
 
-    @Column(name = "FLAG_DOCUMENT_14")
     @JsonProperty("FLAG_DOCUMENT_14")
     private Long flagDocument14;
 
-    @Column(name = "FLAG_DOCUMENT_15")
     @JsonProperty("FLAG_DOCUMENT_15")
     private Long flagDocument15;
 
-    @Column(name = "FLAG_DOCUMENT_16")
     @JsonProperty("FLAG_DOCUMENT_16")
     private Long flagDocument16;
 
-    @Column(name = "FLAG_DOCUMENT_17")
     @JsonProperty("FLAG_DOCUMENT_17")
     private Long flagDocument17;
 
-    @Column(name = "FLAG_DOCUMENT_18")
     @JsonProperty("FLAG_DOCUMENT_18")
     private Long flagDocument18;
 
-    @Column(name = "FLAG_DOCUMENT_19")
     @JsonProperty("FLAG_DOCUMENT_19")
     private Long flagDocument19;
 
-    @Column(name = "FLAG_DOCUMENT_20")
     @JsonProperty("FLAG_DOCUMENT_20")
     private Long flagDocument20;
 
-    @Column(name = "FLAG_DOCUMENT_21")
     @JsonProperty("FLAG_DOCUMENT_21")
     private Long flagDocument21;
 
-    @Column(name = "AMT_REQ_CREDIT_BUREAU_HOUR")
     @JsonProperty("AMT_REQ_CREDIT_BUREAU_HOUR")
     private Double amtReqCreditBureauHour;
 
-    @Column(name = "AMT_REQ_CREDIT_BUREAU_DAY")
     @JsonProperty("AMT_REQ_CREDIT_BUREAU_DAY")
     private Double amtReqCreditBureauDay;
 
-    @Column(name = "AMT_REQ_CREDIT_BUREAU_WEEK")
     @JsonProperty("AMT_REQ_CREDIT_BUREAU_WEEK")
     private Double amtReqCreditBureauWeek;
 
-    @Column(name = "AMT_REQ_CREDIT_BUREAU_MON")
     @JsonProperty("AMT_REQ_CREDIT_BUREAU_MON")
     private Double amtReqCreditBureauMon;
 
-    @Column(name = "AMT_REQ_CREDIT_BUREAU_QRT")
     @JsonProperty("AMT_REQ_CREDIT_BUREAU_QRT")
     private Double antReqCreditBureaQrt;
 
-    @Column(name = "AMT_REQ_CREDIT_BUREAU_YEAR")
     @JsonProperty("AMT_REQ_CREDIT_BUREAU_YEAR")
     private Double amtReqCreditBureauYear;
+
+    @Override public Long key() {
+        return id;
+    }
 
     public Long getId() {
         return id;

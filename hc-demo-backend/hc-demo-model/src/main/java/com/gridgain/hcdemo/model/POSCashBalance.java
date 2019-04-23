@@ -17,52 +17,53 @@
 
 package com.gridgain.hcdemo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.io.Serializable;
+import org.apache.ignite.cache.affinity.AffinityKey;
+import org.apache.ignite.cache.affinity.AffinityKeyMapped;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
-@Entity
-@Table(name = "POS_CASH_BALANCE")
-public class POSCashBalance {
+public class POSCashBalance implements Identifiable<AffinityKey<Long>>, Serializable {
 
-    @Id
-    @Column(name = "ID")
     @JsonProperty("ID")
     private Long id;
 
-    @Column(name = "SK_ID_PREV")
     @JsonProperty("SK_ID_PREV")
     private Long skIdPrev;
 
-    @Column(name = "SK_ID_CURR")
+    @QuerySqlField(index = true)
+    @AffinityKeyMapped
     @JsonProperty("SK_ID_CURR")
     private Long skIdCurr;
 
-    @Column(name = "MONTHS_BALANCE")
     @JsonProperty("MONTHS_BALANCE")
     private Long monthsBalance;
 
-    @Column(name = "CNT_INSTALMENT")
     @JsonProperty("CNT_INSTALMENT")
     private Double cntInstalment;
 
-    @Column(name = "CNT_INSTALMENT_FUTURE")
     @JsonProperty("CNT_INSTALMENT_FUTURE")
     private Double cntInstalmentFuture;
 
-    @Column(name = "NAME_CONTRACT_STATUS")
     @JsonProperty("NAME_CONTRACT_STATUS")
     private String nameContractStatus;
 
-    @Column(name = "SK_DPD")
     @JsonProperty("SK_DPD")
     private Long skDpd;
 
-    @Column(name = "SK_DPD_DEF")
     @JsonProperty("SK_DPD_DEF")
     private Long skDpdDef;
+
+    @JsonIgnore
+    private transient AffinityKey<Long> key;
+
+    @Override public AffinityKey<Long> key() {
+        if (key == null)
+            key = new AffinityKey<>(id, skIdCurr);
+
+        return key;
+    }
 
     public Long getId() {
         return id;

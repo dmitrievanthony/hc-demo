@@ -17,112 +17,98 @@
 
 package com.gridgain.hcdemo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.io.Serializable;
+import org.apache.ignite.cache.affinity.AffinityKey;
+import org.apache.ignite.cache.affinity.AffinityKeyMapped;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
-@Entity
-@Table(name = "CREDIT_CARD_BALANCE")
-public class CreditCardBalance {
+public class CreditCardBalance implements Identifiable<AffinityKey<Long>>, Serializable {
 
-    @Id
-    @Column(name = "ID")
     @JsonProperty("ID")
     private Long id;
 
-    @Column(name = "SK_ID_PREV")
     @JsonProperty("SK_ID_PREV")
     private Long skIdPrev;
 
-    @Column(name = "SK_ID_CURR")
+    @QuerySqlField(index = true)
+    @AffinityKeyMapped
     @JsonProperty("SK_ID_CURR")
     private Long skIdCurr;
 
-    @Column(name = "MONTHS_BALANCE")
     @JsonProperty("MONTHS_BALANCE")
     private Long monthsBalance;
 
-    @Column(name = "AMT_BALANCE")
     @JsonProperty("AMT_BALANCE")
     private Double amtBalance;
 
-    @Column(name = "AMT_CREDIT_LIMIT_ACTUAL")
     @JsonProperty("AMT_CREDIT_LIMIT_ACTUAL")
     private Long amtCreditLimitActual;
 
-    @Column(name = "AMT_DRAWINGS_ATM_CURRENT")
     @JsonProperty("AMT_DRAWINGS_ATM_CURRENT")
     private Double amtDrawingsAtmCurrent;
 
-    @Column(name = "AMT_DRAWINGS_CURRENT")
     @JsonProperty("AMT_DRAWINGS_CURRENT")
     private Double amtDrawingsCurrentDouble;
 
-    @Column(name = "AMT_DRAWINGS_OTHER_CURRENT")
     @JsonProperty("AMT_DRAWINGS_OTHER_CURRENT")
     private Double amtDrawingsOtherCurrent;
 
-    @Column(name = "AMT_DRAWINGS_POS_CURRENT")
     @JsonProperty("AMT_DRAWINGS_POS_CURRENT")
     private Double amtDrawingsPosCurrent;
 
-    @Column(name = "AMT_INST_MIN_REGULARITY")
     @JsonProperty("AMT_INST_MIN_REGULARITY")
     private Double amtInstMinRegularity;
 
-    @Column(name = "AMT_PAYMENT_CURRENT")
     @JsonProperty("AMT_PAYMENT_CURRENT")
     private Double amtPaymentCurrent;
 
-    @Column(name = "AMT_PAYMENT_TOTAL_CURRENT")
     @JsonProperty("AMT_PAYMENT_TOTAL_CURRENT")
     private Double amtPaymentTotalCurrent;
 
-    @Column(name = "AMT_RECEIVABLE_PRINCIPAL")
     @JsonProperty("AMT_RECEIVABLE_PRINCIPAL")
     private Double amtReceivablePrincipal;
 
-    @Column(name = "AMT_RECIVABLE")
     @JsonProperty("AMT_RECIVABLE")
     private Double amtRecivable;
 
-    @Column(name = "AMT_TOTAL_RECEIVABLE")
     @JsonProperty("AMT_TOTAL_RECEIVABLE")
     private Double amtTotalReceivable;
 
-    @Column(name = "CNT_DRAWINGS_ATM_CURRENT")
     @JsonProperty("CNT_DRAWINGS_ATM_CURRENT")
     private Double cntDrawingsAtmCurrent;
 
-    @Column(name = "CNT_DRAWINGS_CURRENT")
     @JsonProperty("CNT_DRAWINGS_CURRENT")
     private Integer cntDrawingsCurrent;
 
-    @Column(name = "CNT_DRAWINGS_OTHER_CURRENT")
     @JsonProperty("CNT_DRAWINGS_OTHER_CURRENT")
     private Double cntDrawingsOtherCurrent;
 
-    @Column(name = "CNT_DRAWINGS_POS_CURRENT")
     @JsonProperty("CNT_DRAWINGS_POS_CURRENT")
     private Double cntDrawingsPosCurrent;
 
-    @Column(name = "CNT_INSTALMENT_MATURE_CUM")
     @JsonProperty("CNT_INSTALMENT_MATURE_CUM")
     private Double cntInstalmentMatureCum;
 
-    @Column(name = "NAME_CONTRACT_STATUS")
     @JsonProperty("NAME_CONTRACT_STATUS")
     private String nameContractStatus;
 
-    @Column(name = "SK_DPD")
     @JsonProperty("SK_DPD")
     private Integer skDpd;
 
-    @Column(name = "SK_DPD_DEF")
     @JsonProperty("SK_DPD_DEF")
     private Integer skPdpDef;
+
+    @JsonIgnore
+    private transient AffinityKey<Long> key;
+
+    @Override public AffinityKey<Long> key() {
+        if (key == null)
+            key = new AffinityKey<>(id, skIdCurr);
+
+        return key;
+    }
 
     public Long getId() {
         return id;

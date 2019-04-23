@@ -1,2 +1,4 @@
 ignite.hosts: ignite
-spring.jpa.hibernate.ddl-auto: none
+com.gridgain.hcdemo.model:
+  rows-to-be-loaded: 1000000
+  batch-size: 100

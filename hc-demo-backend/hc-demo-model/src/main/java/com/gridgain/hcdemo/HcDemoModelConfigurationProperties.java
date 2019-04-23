@@ -15,23 +15,33 @@
  * limitations under the License.
  */
 
-package com.gridgain.hcdemo.api;
+package com.gridgain.hcdemo;
 
-import com.gridgain.hcdemo.model.PreviousApplication;
-import org.apache.ignite.IgniteCache;
-import org.apache.ignite.cache.affinity.AffinityKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
-@RestController
-@RequestMapping("/api/previous-application")
-public class PreviousApplicationAPI {
+@Configuration
+@ConfigurationProperties(prefix = "com.gridgain.hcdemo.model")
+public class HcDemoModelConfigurationProperties {
 
-    private static final Logger log = LoggerFactory.getLogger(PreviousApplicationAPI.class);
+    private long rowsToBeLoaded = -1;
 
-    @Autowired
-    private IgniteCache<AffinityKey<Long>, PreviousApplication> previousApplicationCache;
+    private long batchSize = 100000;
+
+    public long getRowsToBeLoaded() {
+        return rowsToBeLoaded;
+    }
+
+    public void setRowsToBeLoaded(long rowsToBeLoaded) {
+        this.rowsToBeLoaded = rowsToBeLoaded;
+    }
+
+    public long getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(long batchSize) {
+        this.batchSize = batchSize;
+    }
 }

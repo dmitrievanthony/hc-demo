@@ -17,172 +17,144 @@
 
 package com.gridgain.hcdemo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.io.Serializable;
+import org.apache.ignite.cache.affinity.AffinityKey;
+import org.apache.ignite.cache.affinity.AffinityKeyMapped;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
-@Entity
-@Table(name = "PREVIOUS_APPLICATION")
-public class PreviousApplication {
+public class PreviousApplication implements Identifiable<AffinityKey<Long>>, Serializable {
 
-    @Id
-    @Column(name = "SK_ID_PREV")
     @JsonProperty("SK_ID_PREV")
-    private Long skIdPrev;
+    private Long id;
 
-    @Column(name = "SK_ID_CURR")
+    @QuerySqlField(index = true)
+    @AffinityKeyMapped
     @JsonProperty("SK_ID_CURR")
     private Long skIdCurr;
 
-    @Column(name = "NAME_CONTRACT_TYPE")
     @JsonProperty("NAME_CONTRACT_TYPE")
     private String nameContractType;
 
-    @Column(name = "AMT_ANNUITY")
     @JsonProperty("AMT_ANNUITY")
     private Double amtAnnuity;
 
-    @Column(name = "AMT_APPLICATION")
     @JsonProperty("AMT_APPLICATION")
     private Double amtApplication;
 
-    @Column(name = "AMT_CREDIT")
     @JsonProperty("AMT_CREDIT")
     private Double amtCredit;
 
-    @Column(name = "AMT_DOWN_PAYMENT")
     @JsonProperty("AMT_DOWN_PAYMENT")
     private Double amtDownPayment;
 
-    @Column(name = "AMT_GOODS_PRICE")
     @JsonProperty("AMT_GOODS_PRICE")
     private Double amtGoodsPrice;
 
-    @Column(name = "WEEKDAY_APPR_PROCESS_START")
     @JsonProperty("WEEKDAY_APPR_PROCESS_START")
     private String weekdayApprProcessStart;
 
-    @Column(name = "HOUR_APPR_PROCESS_START")
     @JsonProperty("HOUR_APPR_PROCESS_START")
     private Long hourApprProcessStart;
 
-    @Column(name = "FLAG_LAST_APPL_PER_CONTRACT")
     @JsonProperty("FLAG_LAST_APPL_PER_CONTRACT")
     private String flagLastApplPerContract;
 
-    @Column(name = "NFLAG_LAST_APPL_IN_DAY")
     @JsonProperty("NFLAG_LAST_APPL_IN_DAY")
     private Long nflagLastApplInDay;
 
-    @Column(name = "RATE_DOWN_PAYMENT")
     @JsonProperty("RATE_DOWN_PAYMENT")
     private Double rateDownPayment;
 
-    @Column(name = "RATE_INTEREST_PRIMARY")
     @JsonProperty("RATE_INTEREST_PRIMARY")
     private Double rateInterestPrimary;
 
-    @Column(name = "RATE_INTEREST_PRIVILEGED")
     @JsonProperty("RATE_INTEREST_PRIVILEGED")
     private Double rateInterestPrivileged;
 
-    @Column(name = "NAME_CASH_LOAN_PURPOSE")
     @JsonProperty("NAME_CASH_LOAN_PURPOSE")
     private String nameCashLoanPurpose;
 
-    @Column(name = "NAME_CONTRACT_STATUS")
     @JsonProperty("NAME_CONTRACT_STATUS")
     private String nameContractStatus;
 
-    @Column(name = "DAYS_DECISION")
     @JsonProperty("DAYS_DECISION")
     private Integer daysDecision;
 
-    @Column(name = "NAME_PAYMENT_TYPE")
     @JsonProperty("NAME_PAYMENT_TYPE")
     private String namePaymentType;
 
-    @Column(name = "CODE_REJECT_REASON")
     @JsonProperty("CODE_REJECT_REASON")
     private String codeRejectReason;
 
-    @Column(name = "NAME_TYPE_SUITE")
     @JsonProperty("NAME_TYPE_SUITE")
     private String nameTypeSuite;
 
-    @Column(name = "NAME_CLIENT_TYPE")
     @JsonProperty("NAME_CLIENT_TYPE")
     private String nameClientType;
 
-    @Column(name = "NAME_GOODS_CATEGORY")
     @JsonProperty("NAME_GOODS_CATEGORY")
     private String nameGoodsCategory;
 
-    @Column(name = "NAME_PORTFOLIO")
     @JsonProperty("NAME_PORTFOLIO")
     private String namePortfolio;
 
-    @Column(name = "NAME_PRODUCT_TYPE")
     @JsonProperty("NAME_PRODUCT_TYPE")
     private String nameProductType;
 
-    //    CHANNEL_TYPE VARCHAR(255),
-    @Column(name = "CHANNEL_TYPE")
     @JsonProperty("CHANNEL_TYPE")
     private String channelType;
 
-    @Column(name = "SELLERPLACE_AREA")
     @JsonProperty("SELLERPLACE_AREA")
     private Long sellerplaceArea;
 
-    @Column(name = "NAME_SELLER_INDUSTRY")
     @JsonProperty("NAME_SELLER_INDUSTRY")
     private String nameSellerIndustry;
 
-    @Column(name = "CNT_PAYMENT")
     @JsonProperty("CNT_PAYMENT")
     private Double cntPayment;
 
-    @Column(name = "NAME_YIELD_GROUP")
     @JsonProperty("NAME_YIELD_GROUP")
     private String nameYieldGroup;
 
-    @Column(name = "PRODUCT_COMBINATION")
     @JsonProperty("PRODUCT_COMBINATION")
     private String productCombination;
 
-    @Column(name = "DAYS_FIRST_DRAWING")
     @JsonProperty("DAYS_FIRST_DRAWING")
     private Double daysFirstDrawing;
 
-    @Column(name = "DAYS_FIRST_DUE")
     @JsonProperty("DAYS_FIRST_DUE")
     private Double daysFirstDue;
 
-    @Column(name = "DAYS_LAST_DUE_1ST_VERSION")
     @JsonProperty("DAYS_LAST_DUE_1ST_VERSION")
     private Double daysLastBue1stVersion;
 
-    @Column(name = "DAYS_LAST_DUE")
     @JsonProperty("DAYS_LAST_DUE")
     private Double daysLastDue;
 
-    @Column(name = "DAYS_TERMINATION")
     @JsonProperty("DAYS_TERMINATION")
     private Double daysTermination;
 
-    @Column(name = "NFLAG_INSURED_ON_APPROVAL")
     @JsonProperty("NFLAG_INSURED_ON_APPROVAL")
     private Double nflagInsuredOnApproval;
 
-    public Long getSkIdPrev() {
-        return skIdPrev;
+    @JsonIgnore
+    private transient AffinityKey<Long> key;
+
+    @Override public AffinityKey<Long> key() {
+        if (key == null)
+            key = new AffinityKey<>(id, skIdCurr);
+
+        return key;
     }
 
-    public void setSkIdPrev(Long skIdPrev) {
-        this.skIdPrev = skIdPrev;
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getSkIdCurr() {

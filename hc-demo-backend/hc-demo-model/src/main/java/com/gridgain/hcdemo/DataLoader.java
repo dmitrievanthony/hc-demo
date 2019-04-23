@@ -24,38 +24,28 @@ import com.gridgain.hcdemo.model.Application;
 import com.gridgain.hcdemo.model.Bureau;
 import com.gridgain.hcdemo.model.BureauBalance;
 import com.gridgain.hcdemo.model.CreditCardBalance;
+import com.gridgain.hcdemo.model.Identifiable;
 import com.gridgain.hcdemo.model.InstallmentPayment;
 import com.gridgain.hcdemo.model.POSCashBalance;
 import com.gridgain.hcdemo.model.PreviousApplication;
-import com.gridgain.hcdemo.preprocessor.ApplicationPreprocessor;
-import com.gridgain.hcdemo.preprocessor.BureauBalancePreprocessor;
-import com.gridgain.hcdemo.preprocessor.BureauPreprocessor;
-import com.gridgain.hcdemo.preprocessor.ClientPreprocessor;
-import com.gridgain.hcdemo.preprocessor.CreditCardBalancePreprocessor;
-import com.gridgain.hcdemo.preprocessor.InstallmentPaymentPreprocessor;
-import com.gridgain.hcdemo.preprocessor.POSCashBalancePreprocessor;
 import com.gridgain.hcdemo.preprocessor.Preprocessor;
-import com.gridgain.hcdemo.preprocessor.PreviousApplicationPreprocessor;
-import com.gridgain.hcdemo.repository.ApplicationRepository;
-import com.gridgain.hcdemo.repository.BureauBalanceRepository;
-import com.gridgain.hcdemo.repository.BureauRepository;
-import com.gridgain.hcdemo.repository.ClientRepository;
-import com.gridgain.hcdemo.repository.CreditCardBalanceRepository;
-import com.gridgain.hcdemo.repository.InstallmentPaymentRepository;
-import com.gridgain.hcdemo.repository.POSCashBalanceRepository;
-import com.gridgain.hcdemo.repository.PreviousApplicationRepository;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.apache.ignite.IgniteCache;
+import org.apache.ignite.cache.affinity.AffinityKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -63,152 +53,19 @@ public class DataLoader {
 
     private static final Logger log = LoggerFactory.getLogger(DataLoader.class);
 
-    @Value("${loader.batch-size:100000}")
-    private int batchSize;
-
-    @Value("${loader.rows-to-be-loaded:-1}")
-    private int rowsToBeLoaded;
-
     @Autowired
-    private ApplicationRepository applicationRepository;
+    private HcDemoModelConfigurationProperties properties;
 
-    @Autowired
-    private BureauBalanceRepository bureauBalanceRepository;
-
-    @Autowired
-    private BureauRepository bureauRepository;
-
-    @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
-    private CreditCardBalanceRepository creditCardBalanceRepository;
-
-    @Autowired
-    private InstallmentPaymentRepository installmentPaymentRepository;
-
-    @Autowired
-    private POSCashBalanceRepository posCashBalanceRepository;
-
-    @Autowired
-    private PreviousApplicationRepository previousApplicationRepository;
-
-    @Autowired
-    private ApplicationPreprocessor applicationPreprocessor;
-
-    @Autowired
-    private BureauBalancePreprocessor bureauBalancePreprocessor;
-
-    @Autowired
-    private BureauPreprocessor bureauPreprocessor;
-
-    @Autowired
-    private ClientPreprocessor clientPreprocessor;
-
-    @Autowired
-    private CreditCardBalancePreprocessor creditCardBalancePreprocessor;
-
-    @Autowired
-    private InstallmentPaymentPreprocessor installmentPaymentPreprocessor;
-
-    @Autowired
-    private POSCashBalancePreprocessor posCashBalancePreprocessor;
-
-    @Autowired
-    private PreviousApplicationPreprocessor previousApplicationPreprocessor;
-
-    public void loadData() throws IOException {
-        loadCSV(
-            new String[]{
-                "data/application_train00.csv.zip",
-                "data/application_train01.csv.zip"
-            },
-            Application.class,
-            applicationRepository,
-            applicationPreprocessor,
-            rowsToBeLoaded
-        );
-
-        loadCSV(
-            new String[]{
-                "data/bureau00.csv.zip",
-                "data/bureau01.csv.zip"
-            },
-            Bureau.class,
-            bureauRepository,
-            bureauPreprocessor,
-            rowsToBeLoaded
-        );
-
-        loadCSV(
-            new String[]{
-                "data/bureau_balance00.csv.zip",
-                "data/bureau_balance01.csv.zip",
-                "data/bureau_balance02.csv.zip",
-                "data/bureau_balance03.csv.zip"
-            },
-            BureauBalance.class,
-            bureauBalanceRepository,
-            bureauBalancePreprocessor,
-            rowsToBeLoaded
-        );
-
-        loadCSV(
-            new String[]{
-                "data/credit_card_balance00.csv.zip",
-                "data/credit_card_balance01.csv.zip",
-                "data/credit_card_balance02.csv.zip",
-                "data/credit_card_balance03.csv.zip"
-            },
-            CreditCardBalance.class,
-            creditCardBalanceRepository,
-            creditCardBalancePreprocessor,
-            rowsToBeLoaded
-        );
-
-        loadCSV(
-            new String[]{
-                "data/installments_payments00.csv.zip",
-                "data/installments_payments00.csv.zip",
-                "data/installments_payments00.csv.zip",
-                "data/installments_payments00.csv.zip",
-                "data/installments_payments00.csv.zip"
-            },
-            InstallmentPayment.class,
-            installmentPaymentRepository,
-            installmentPaymentPreprocessor,
-            rowsToBeLoaded
-        );
-
-        loadCSV(
-            new String[]{
-                "data/POS_CASH_balance00.csv.zip",
-                "data/POS_CASH_balance01.csv.zip",
-                "data/POS_CASH_balance02.csv.zip",
-                "data/POS_CASH_balance03.csv.zip"
-            },
-            POSCashBalance.class,
-            posCashBalanceRepository,
-            posCashBalancePreprocessor,
-            rowsToBeLoaded
-        );
-
-        loadCSV(
-            new String[]{
-                "data/previous_application00.csv.zip",
-                "data/previous_application01.csv.zip",
-                "data/previous_application02.csv.zip"
-            },
-            PreviousApplication.class,
-            previousApplicationRepository,
-            previousApplicationPreprocessor,
-            rowsToBeLoaded
-        );
+    public <K extends Serializable, T extends Identifiable<K>> void loadCSV(String[] resources, Class<T> clazz,
+        Preprocessor<T> preprocessor, IgniteCache<K, T> cache) throws IOException {
+        loadCSV(resources, clazz, preprocessor, (Map<K, T> batch) -> cache.putAll(batch));
     }
 
-    private <T> void loadCSV(String[] resources, Class<T> clazz, CrudRepository<T, ?> repository,
-        Preprocessor<T> preprocessor, long rows) throws IOException {
+    public <K extends Serializable, T extends Identifiable<K>> void loadCSV(String[] resources, Class<T> clazz,
+        Preprocessor<T> preprocessor, Consumer<Map<K, T>> batchConsumer) throws IOException {
         log.info("Start loading data [resource=" + Arrays.toString(resources) + "]");
+
+
 
         CsvMapper mapper = new CsvMapper();
 
@@ -227,20 +84,21 @@ public class DataLoader {
                     .with(schema)
                     .readValues(zis);
 
-                List<T> batch = new ArrayList<>();
+                Map<K, T> batch = new HashMap<>();
                 int batchNumber = 0;
                 while (objects.hasNext()) {
-                    if (rows != -1 && rows == row)
+                    if (properties.getRowsToBeLoaded() != -1 && properties.getRowsToBeLoaded() == row)
                         break;
 
                     T object = objects.next();
                     object = preprocessor.preprocess(object);
-                    batch.add(object);
+                    batch.put(object.key(), object);
 
                     row++;
 
-                    if (batch.size() == batchSize) {
-                        repository.saveAll(batch);
+                    if (batch.size() == properties.getBatchSize()) {
+
+                        batchConsumer.accept(batch);
                         batch.clear();
 
                         log.info("Data is loading [resource=" + resource + ", batch=" + batchNumber + "]");
@@ -250,10 +108,10 @@ public class DataLoader {
                 }
 
                 if (!batch.isEmpty())
-                    repository.saveAll(batch);
+                    batchConsumer.accept(batch);
             }
         }
 
-        log.info("Data has been loaded [resource=" + Arrays.toString(resources) + "]");
+        log.info("Data has been loaded [resource=" + Arrays.toString(resources) + ", rows=" + row + "]");
     }
 }

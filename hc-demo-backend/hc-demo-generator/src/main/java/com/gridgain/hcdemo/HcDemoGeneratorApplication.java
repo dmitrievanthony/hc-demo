@@ -15,23 +15,16 @@
  * limitations under the License.
  */
 
-package com.gridgain.hcdemo.api;
+package com.gridgain.hcdemo;
 
-import com.gridgain.hcdemo.model.PreviousApplication;
-import org.apache.ignite.IgniteCache;
-import org.apache.ignite.cache.affinity.AffinityKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@RestController
-@RequestMapping("/api/previous-application")
-public class PreviousApplicationAPI {
+@SpringBootApplication
+public class HcDemoGeneratorApplication {
 
-    private static final Logger log = LoggerFactory.getLogger(PreviousApplicationAPI.class);
-
-    @Autowired
-    private IgniteCache<AffinityKey<Long>, PreviousApplication> previousApplicationCache;
+    public static void main(String[] args) throws InterruptedException {
+        Thread.sleep(10 * 1000);
+        SpringApplication.run(HcDemoGeneratorApplication.class, args);
+    }
 }

@@ -17,53 +17,53 @@
 
 package com.gridgain.hcdemo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.io.Serializable;
+import org.apache.ignite.cache.affinity.AffinityKey;
+import org.apache.ignite.cache.affinity.AffinityKeyMapped;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
-@Entity
-@Table(name = "INSTALLMENTS_PAYMENTS")
-public class InstallmentPayment {
+public class InstallmentPayment implements Identifiable<AffinityKey<Long>>, Serializable {
 
-    @Id
-    @Column(name = "ID")
     @JsonProperty("ID")
     private Long id;
 
-    @Column(name = "SK_ID_PREV")
     @JsonProperty("SK_ID_PREV")
     private Long skIdPrev;
 
-    @Column(name = "SK_ID_CURR")
+    @QuerySqlField(index = true)
+    @AffinityKeyMapped
     @JsonProperty("SK_ID_CURR")
     private Long skIdCurr;
 
-    @Column(name = "NUM_INSTALMENT_VERSION")
     @JsonProperty("NUM_INSTALMENT_VERSION")
     private Double numInstalmentVersion;
 
-    @Column(name = "NUM_INSTALMENT_NUMBER")
     @JsonProperty("NUM_INSTALMENT_NUMBER")
     private Integer numInstalmentNumber;
 
-    //    DAYS_INSTALMENT DOUBLE,
-    @Column(name = "DAYS_INSTALMENT")
     @JsonProperty("DAYS_INSTALMENT")
     private Double daysInstalment;
 
-    @Column(name = "DAYS_ENTRY_PAYMENT")
     @JsonProperty("DAYS_ENTRY_PAYMENT")
     private Double daysEntryPayment;
 
-    @Column(name = "AMT_INSTALMENT")
     @JsonProperty("AMT_INSTALMENT")
     private Double amtInstalment;
 
-    @Column(name = "AMT_PAYMENT")
     @JsonProperty("AMT_PAYMENT")
     private Double amtPayment;
+
+    @JsonIgnore
+    private transient AffinityKey<Long> key;
+
+    @Override public AffinityKey<Long> key() {
+        if (key == null)
+            key = new AffinityKey<>(id, skIdCurr);
+
+        return key;
+    }
 
     public Long getId() {
         return id;

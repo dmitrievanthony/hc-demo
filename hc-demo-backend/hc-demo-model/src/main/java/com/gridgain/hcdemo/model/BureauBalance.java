@@ -17,32 +17,41 @@
 
 package com.gridgain.hcdemo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.io.Serializable;
+import org.apache.ignite.cache.affinity.AffinityKey;
+import org.apache.ignite.cache.affinity.AffinityKeyMapped;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
-@Entity
-@Table(name = "BUREAU_BALANCE")
-public class BureauBalance {
+public class BureauBalance implements Identifiable<AffinityKey<Long>>, Serializable {
 
-    @Id
-    @Column(name = "ID")
     @JsonProperty("ID")
     private Long id;
 
-    @Column(name = "SK_ID_BUREAU")
     @JsonProperty("SK_ID_BUREAU")
     private Long skIdBureau;
 
-    @Column(name = "MONTHS_BALANCE")
     @JsonProperty("MONTHS_BALANCE")
     private Long monthsBalance;
 
-    @Column(name = "STATUS")
     @JsonProperty("STATUS")
     private String status;
+
+    @QuerySqlField(index = true)
+    @AffinityKeyMapped
+    @JsonIgnore
+    private Long skIdCurr;
+
+    @JsonIgnore
+    private transient AffinityKey<Long> key;
+
+    @Override public AffinityKey<Long> key() {
+        if (key == null)
+            key = new AffinityKey<>(id, skIdCurr);
+
+        return key;
+    }
 
     public Long getId() {
         return id;
@@ -74,5 +83,13 @@ public class BureauBalance {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Long getSkIdCurr() {
+        return skIdCurr;
+    }
+
+    public void setSkIdCurr(Long skIdCurr) {
+        this.skIdCurr = skIdCurr;
     }
 }

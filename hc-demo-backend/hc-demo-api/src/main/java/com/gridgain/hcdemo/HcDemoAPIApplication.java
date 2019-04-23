@@ -10,7 +10,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class HcDemoAPIApplication {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
+		Thread.sleep(10 * 1000);
 		SpringApplication.run(HcDemoAPIApplication.class, args);
 	}
 }

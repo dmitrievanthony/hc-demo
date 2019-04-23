@@ -17,15 +17,21 @@
 
 package com.gridgain.hcdemo.api;
 
-import com.gridgain.hcdemo.repository.POSCashBalanceRepository;
+import com.gridgain.hcdemo.model.POSCashBalance;
+import org.apache.ignite.IgniteCache;
+import org.apache.ignite.cache.affinity.AffinityKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/pos-cash-balance")
+@RequestMapping("/api/pos-cash-balance")
 public class POSCashBalanceAPI {
 
+    private static final Logger log = LoggerFactory.getLogger(POSCashBalanceAPI.class);
+
     @Autowired
-    private POSCashBalanceRepository posCashBalanceRepository;
+    private IgniteCache<AffinityKey<Long>, POSCashBalance> posCashBalanceCache;
 }

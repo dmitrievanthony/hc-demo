@@ -15,23 +15,46 @@
  * limitations under the License.
  */
 
-package com.gridgain.hcdemo.api;
+package com.gridgain.hcdemo.preprocessor;
 
 import com.gridgain.hcdemo.model.Bureau;
+import com.gridgain.hcdemo.model.BureauBalance;
+import java.util.Iterator;
+import java.util.List;
+import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.cache.affinity.AffinityKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.ignite.cache.query.SqlFieldsQuery;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Component;
 
-@RestController
-@RequestMapping("/api/bureau")
-public class BureauAPI {
+@Component
+public class BureauBalancePreprocessor implements Preprocessor<BureauBalance> {
 
-    private static final Logger log = LoggerFactory.getLogger(BureauAPI.class);
+    @Autowired
+    private Ignite ignite;
 
     @Autowired
     private IgniteCache<AffinityKey<Long>, Bureau> bureauCache;
+
+    @Override public BureauBalance preprocess(BureauBalance input) {
+        Long skIdBureau = input.getSkIdBureau();
+        Long skIdCurr = getSkIdCurrBySkIdBureau(skIdBureau);
+
+        if (skIdCurr != null)
+            input.setSkIdCurr(skIdCurr);
+
+        return input;
+    }
+
+    private Long getSkIdCurrBySkIdBureau(Long skIdBureau) {
+        Iterator<List<?>> iter = bureauCache.query(
+            new SqlFieldsQuery("select skIdCurr from Bureau where Bureau.id = ?", true).setArgs(skIdBureau)
+        ).iterator();
+
+        if (!iter.hasNext())
+            return null;
+
+        return (Long)iter.next().get(0);
+    }
 }

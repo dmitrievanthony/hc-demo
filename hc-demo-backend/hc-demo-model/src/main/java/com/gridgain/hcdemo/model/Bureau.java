@@ -17,84 +17,78 @@
 
 package com.gridgain.hcdemo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.io.Serializable;
+import org.apache.ignite.cache.affinity.AffinityKey;
+import org.apache.ignite.cache.affinity.AffinityKeyMapped;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
-@Entity
-@Table(name = "BUREAU")
-public class Bureau {
+public class Bureau implements Identifiable<AffinityKey<Long>>, Serializable {
 
-    @Column(name = "SK_ID_CURR")
+    @AffinityKeyMapped
+    @QuerySqlField(index = true)
     @JsonProperty("SK_ID_CURR")
     private Long skIdCurr;
 
-    @Id
-    @Column(name = "SK_ID_BUREAU")
+    @QuerySqlField(index = true)
     @JsonProperty("SK_ID_BUREAU")
-    private Long skIdBureau;
+    private Long id;
 
-    @Column(name = "CREDIT_ACTIVE")
     @JsonProperty("CREDIT_ACTIVE")
     private String creditActive;
 
-    @Column(name = "CREDIT_CURRENCY")
     @JsonProperty("CREDIT_CURRENCY")
     private String creditCurrency;
 
-    @Column(name = "DAYS_CREDIT")
     @JsonProperty("DAYS_CREDIT")
     private Long daysCredit;
 
-    @Column(name = "CREDIT_DAY_OVERDUE")
     @JsonProperty("CREDIT_DAY_OVERDUE")
     private Long creditDaysOverdue;
 
-    @Column(name = "DAYS_CREDIT_ENDDATE")
     @JsonProperty("DAYS_CREDIT_ENDDATE")
     private Double daysCreditEnddate;
 
-    @Column(name = "DAYS_ENDDATE_FACT")
     @JsonProperty("DAYS_ENDDATE_FACT")
     private Double daysEnddateFact;
 
-    @Column(name = "AMT_CREDIT_MAX_OVERDUE")
     @JsonProperty("AMT_CREDIT_MAX_OVERDUE")
     private Double amtCreditMaxOverdue;
 
-    @Column(name = "CNT_CREDIT_PROLONG")
     @JsonProperty("CNT_CREDIT_PROLONG")
     private Long cntCreditProlongInt;
 
-    @Column(name = "AMT_CREDIT_SUM")
     @JsonProperty("AMT_CREDIT_SUM")
     private Double amtCreditSumDouble;
 
-    @Column(name = "AMT_CREDIT_SUM_DEBT")
     @JsonProperty("AMT_CREDIT_SUM_DEBT")
     private Double amtCreditSumDebt;
 
-    @Column(name = "AMT_CREDIT_SUM_LIMIT")
     @JsonProperty("AMT_CREDIT_SUM_LIMIT")
     private Double amtCreditSumLimit;
 
-    @Column(name = "AMT_CREDIT_SUM_OVERDUE")
     @JsonProperty("AMT_CREDIT_SUM_OVERDUE")
     private Double amtCreditSumOverdue;
 
-    @Column(name = "CREDIT_TYPE")
     @JsonProperty("CREDIT_TYPE")
     private String creditType;
 
-    @Column(name = "DAYS_CREDIT_UPDATE")
     @JsonProperty("DAYS_CREDIT_UPDATE")
     private Long daysCreditUpdate;
 
-    @Column(name = "AMT_ANNUITY")
     @JsonProperty("AMT_ANNUITY")
     private Double amtAnnuity;
+
+    @JsonIgnore
+    private transient AffinityKey<Long> key;
+
+    @Override public AffinityKey<Long> key() {
+        if (key == null)
+            key = new AffinityKey<>(id, skIdCurr);
+
+        return key;
+    }
 
     public Long getSkIdCurr() {
         return skIdCurr;
@@ -104,12 +98,12 @@ public class Bureau {
         this.skIdCurr = skIdCurr;
     }
 
-    public Long getSkIdBureau() {
-        return skIdBureau;
+    public Long getId() {
+        return id;
     }
 
-    public void setSkIdBureau(Long skIdBureau) {
-        this.skIdBureau = skIdBureau;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getCreditActive() {
