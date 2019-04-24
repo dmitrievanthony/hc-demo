@@ -145,6 +145,18 @@ public class ApplicationHandler implements IgniteRunnable {
         return bldr.toString();
     }
 
+    private Map<String, Double> encodeFieldNames(Map<String, Double> vector) {
+        Map<String, Double> res = new HashMap<>();
+
+        for (Map.Entry<String, Double> e : vector.entrySet()) {
+            if (fieldMapping.containsKey(e.getKey())) {
+                res.put(fieldMapping.get(e.getKey()), e.getValue());
+            }
+        }
+
+        return res;
+    }
+
     private Map<String, String> fieldMapping() {
         Map<String, String> map = new HashMap<>();
 
@@ -174,11 +186,6 @@ public class ApplicationHandler implements IgniteRunnable {
 
         Map<String, Double> values = new HashMap<>();
 
-        for (int i = 0; i < 1000; i++) {
-            if (!values.containsKey(String.valueOf(i)))
-                values.put(String.valueOf(i), Double.NaN);
-        }
-
         extractFields(application, values);
         extractAggregations(bureaus, values);
         extractAggregations(bureauBalances, values);
@@ -187,9 +194,18 @@ public class ApplicationHandler implements IgniteRunnable {
         extractAggregations(posCashBalances, values);
         extractAggregations(previousApplications, values);
 
-        NamedVector vector = VectorUtils.of(values);
+        Map<String, Double> vector = new HashMap<>();
 
-        double prediction = model.predict(vector);
+        for (int i = 0; i < 1000; i++) {
+            if (!values.containsKey(String.valueOf(i)))
+                values.put(String.valueOf(i), Double.NaN);
+        }
+
+        for (Map.Entry<String, Double> e : encodeFieldNames(values).entrySet()) {
+            vector.put(e.getKey(), e.getValue());
+        }
+
+        double prediction = model.predict(VectorUtils.of(vector));
 
         System.out.println("Data: " + valuesToString(values) + ", prediction: " + prediction);
 
@@ -214,16 +230,10 @@ public class ApplicationHandler implements IgniteRunnable {
         }
 
         for (String fieldName : aggregatedVectors.keySet()) {
-            putIntoValues(values, fieldName + "_MIN", min(aggregatedVectors.get(fieldName)));
-            putIntoValues(values, fieldName + "_MAX", max(aggregatedVectors.get(fieldName)));
-            putIntoValues(values, fieldName + "_MEAN", mean(aggregatedVectors.get(fieldName)));
-            putIntoValues(values, fieldName + "_VAR", var(aggregatedVectors.get(fieldName)));
-        }
-    }
-
-    private void putIntoValues(Map<String, Double> values, String fieldName, Double value) {
-        if (fieldMapping.containsKey(fieldName)) {
-            values.put(fieldMapping.get(fieldName), value);
+            values.put(fieldName + "_MIN", min(aggregatedVectors.get(fieldName)));
+            values.put(fieldName + "_MAX", max(aggregatedVectors.get(fieldName)));
+            values.put(fieldName + "_MEAN", mean(aggregatedVectors.get(fieldName)));
+            values.put(fieldName + "_VAR", var(aggregatedVectors.get(fieldName)));
         }
     }
 
@@ -255,7 +265,7 @@ public class ApplicationHandler implements IgniteRunnable {
             if (value instanceof Number) {
                 String fieldName = jsonProperty.value();
                 Double fieldValue = ((Number)value).doubleValue();
-                putIntoValues(values, fieldName, fieldValue);
+                values.put(fieldName, fieldValue);
             }
             else if (value instanceof String) {
                 String fieldName = jsonProperty.value();
@@ -263,12 +273,12 @@ public class ApplicationHandler implements IgniteRunnable {
 
                 for (String key : fieldMapping.keySet()) {
                     if (key.startsWith(fieldName)) {
-                        putIntoValues(values, key, 0.0);
+                        values.put(key, 0.0);
                     }
                 }
 
                 if (!fieldValue.isEmpty()) {
-                    putIntoValues(values, fieldName + "_" + fieldValue, 1.0);
+                    values.put(fieldName + "_" + fieldValue, 1.0);
                 }
             }
         }
