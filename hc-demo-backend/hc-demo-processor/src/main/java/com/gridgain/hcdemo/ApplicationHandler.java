@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.DoubleStream;
 import javax.cache.Cache;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
@@ -56,6 +57,7 @@ import org.apache.ignite.ml.math.primitives.vector.NamedVector;
 import org.apache.ignite.ml.math.primitives.vector.VectorUtils;
 import org.apache.ignite.ml.math.primitives.vector.impl.DelegatingNamedVector;
 import org.apache.ignite.ml.xgboost.parser.XGModelParser;
+import org.jetbrains.annotations.NotNull;
 import sun.misc.IOUtils;
 
 public class ApplicationHandler implements IgniteRunnable {
@@ -238,19 +240,27 @@ public class ApplicationHandler implements IgniteRunnable {
     }
 
     private Double min(List<Double> values) {
-        return 42.0;
+        return asStream(values).min().orElse(Double.NaN);
     }
 
     private Double max(List<Double> values) {
-        return 42.0;
+        return asStream(values).max().orElse(Double.NaN);
     }
 
     private Double mean(List<Double> values) {
-        return 42.0;
+        return asStream(values).sum() / sizeOf(values);
     }
 
     private Double var(List<Double> values) {
-        return 42.0;
+        return asStream(values).map(v -> Math.pow(v - mean(values), 2.)).sum() / sizeOf(values);
+    }
+
+    @NotNull private DoubleStream asStream(List<Double> values) {
+        return values.stream().mapToDouble(x -> x);
+    }
+
+    private double sizeOf(List<Double> values) {
+        return values.isEmpty() ? 1. : values.size();
     }
 
     private void extractFields(Object obj, Map<String, Double> values) throws IllegalAccessException {
