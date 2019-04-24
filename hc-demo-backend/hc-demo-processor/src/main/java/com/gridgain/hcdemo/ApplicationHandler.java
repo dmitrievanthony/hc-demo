@@ -17,7 +17,6 @@
 
 package com.gridgain.hcdemo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gridgain.hcdemo.model.Application;
 import com.gridgain.hcdemo.model.Bureau;
 import com.gridgain.hcdemo.model.BureauBalance;
@@ -25,46 +24,20 @@ import com.gridgain.hcdemo.model.CreditCardBalance;
 import com.gridgain.hcdemo.model.InstallmentPayment;
 import com.gridgain.hcdemo.model.POSCashBalance;
 import com.gridgain.hcdemo.model.PreviousApplication;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
+import com.gridgain.hcdemo.test.TestDataIterator;
+import com.gridgain.hcdemo.test.TestDataValidator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.stream.DoubleStream;
-import javax.cache.Cache;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
-import org.apache.ignite.binary.BinaryObject;
-import org.apache.ignite.cache.CacheInterceptor;
 import org.apache.ignite.cache.affinity.AffinityKey;
-import org.apache.ignite.cache.query.QueryCursor;
-import org.apache.ignite.cache.query.SqlQuery;
-import org.apache.ignite.lang.IgniteBiTuple;
 import org.apache.ignite.lang.IgniteRunnable;
-import org.apache.ignite.ml.IgniteModel;
-import org.apache.ignite.ml.inference.builder.SingleModelBuilder;
-import org.apache.ignite.ml.inference.builder.SyncModelBuilder;
-import org.apache.ignite.ml.inference.parser.ModelParser;
-import org.apache.ignite.ml.inference.reader.InMemoryModelReader;
-import org.apache.ignite.ml.math.primitives.vector.NamedVector;
-import org.apache.ignite.ml.math.primitives.vector.VectorUtils;
-import org.apache.ignite.ml.math.primitives.vector.impl.DelegatingNamedVector;
-import org.apache.ignite.ml.xgboost.parser.XGModelParser;
-import org.jetbrains.annotations.NotNull;
-import sun.misc.IOUtils;
+
+import static com.gridgain.hcdemo.ReferenceDataExtractor.extract;
 
 public class ApplicationHandler implements IgniteRunnable {
-
-    private static final XGModelParser parser = new XGModelParser();
-
-    private static final SyncModelBuilder modelBuilder = new SingleModelBuilder();
 
     private final Application application;
 
@@ -82,9 +55,15 @@ public class ApplicationHandler implements IgniteRunnable {
 
     private transient IgniteCache<AffinityKey<Long>, PreviousApplication> previousApplicationCache;
 
-    private transient IgniteModel<NamedVector, Double> model;
+    private transient InfModel model;
 
-    private transient Map<String, String> fieldMapping;
+    private transient FieldMapping fieldMapping;
+
+    private transient FieldExtractor fieldExtractor;
+
+    private transient AggregationFieldExtractor aggregationFieldExtractor;
+
+    private transient TestDataValidator testDataValidator;
 
     public ApplicationHandler(Application application) {
         this.application = application;
@@ -94,88 +73,40 @@ public class ApplicationHandler implements IgniteRunnable {
         long start = System.nanoTime();
 
         Ignite ignite = Ignition.localIgnite();
+        initialize(ignite);
 
-        Long skIdCurr = application.getId();
+        Long target = inference(
+            application,
+            extract(bureauCache, Bureau.class, application.getId()),
+            extract(bureauBalanceCache, BureauBalance.class, application.getId()),
+            extract(creditCardBalanceCache, CreditCardBalance.class, application.getId()),
+            extract(installmentPaymentCache, InstallmentPayment.class, application.getId()),
+            extract(posCashBalanceCache, POSCashBalance.class, application.getId()),
+            extract(previousApplicationCache, PreviousApplication.class, application.getId())
+        );
 
-        try {
-            initialize(ignite);
+        application.setTarget(target);
 
-            List<Bureau> bureaus = getBureaus(skIdCurr);
-            List<BureauBalance> bureauBalances = getBureauBalances(skIdCurr);
-            List<CreditCardBalance> creditCardBalances = getCreditCardBalances(skIdCurr);
-            List<InstallmentPayment> installmentPayments = getInstallmentPayments(skIdCurr);
-            List<POSCashBalance> posCashBalances = getPOSCashBalances(skIdCurr);
-            List<PreviousApplication> previousApplications = getPreviousApplications(skIdCurr);
-
-            Long target = inference(
-                application,
-                bureaus,
-                bureauBalances,
-                creditCardBalances,
-                installmentPayments,
-                posCashBalances,
-                previousApplications
-            );
-
-            application.setTarget(target);
-
-            applicationCache.put(application.key(), application);
-        }
-        catch (IOException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        applicationCache.put(application.key(), application);
 
         long end = System.nanoTime();
 
         System.out.println("Time: " + (end - start) / 1_000_000.0 + "ms");
     }
 
-    private String valuesToString(Map<String, Double> values) {
-        StringBuilder bldr = new StringBuilder();
-
-        bldr.append("{");
-        for (Map.Entry<String, Double> e : values.entrySet()) {
-            if (!Double.isNaN(e.getValue())) {
-                bldr.append(e.getKey() + ": " + e.getValue() + ", ");
-            }
-        }
-
-        if (bldr.length() > 1)
-            bldr.delete(bldr.length() - 2, bldr.length());
-        bldr.append("}");
-
-        return bldr.toString();
-    }
-
-    private Map<String, Double> encodeFieldNames(Map<String, Double> vector) {
-        Map<String, Double> res = new HashMap<>();
-
-        for (Map.Entry<String, Double> e : vector.entrySet()) {
-            if (fieldMapping.containsKey(e.getKey())) {
-                res.put(fieldMapping.get(e.getKey()), e.getValue());
-            }
-        }
-
-        return res;
-    }
-
-    private Map<String, String> fieldMapping() {
-        Map<String, String> map = new HashMap<>();
-
-        int idx = 0;
-        try (InputStream is = ApplicationHandler.class.getClassLoader().getResourceAsStream("mapping.csv")) {
-            Scanner scanner = new Scanner(is);
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                map.put(line, String.valueOf(idx));
-                idx++;
-            }
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return map;
+    private void initialize(Ignite ignite) {
+        applicationCache = ignite.cache("Application");
+        bureauCache = ignite.cache("Bureau");
+        bureauBalanceCache = ignite.cache("BureauBalance");
+        creditCardBalanceCache = ignite.cache("CreditCardBalance");
+        installmentPaymentCache = ignite.cache("InstallmentPayment");
+        posCashBalanceCache = ignite.cache("POSCashBalance");
+        previousApplicationCache = ignite.cache("PreviousApplication");
+        model = new InfModel(ignite, "model.txt");
+        fieldMapping = new FieldMapping("mapping.csv");
+        fieldExtractor = new FieldExtractor(fieldMapping);
+        aggregationFieldExtractor = new AggregationFieldExtractor(fieldExtractor);
+        testDataValidator = new TestDataValidator("first_100_rows.csv");
     }
 
     private Long inference(Application application,
@@ -184,239 +115,26 @@ public class ApplicationHandler implements IgniteRunnable {
         List<CreditCardBalance> creditCardBalances,
         List<InstallmentPayment> installmentPayments,
         List<POSCashBalance> posCashBalances,
-        List<PreviousApplication> previousApplications) throws IllegalAccessException {
+        List<PreviousApplication> previousApplications) {
 
-        Map<String, Double> values = new HashMap<>();
+        Map<String, Double> values = fieldExtractor.extract(application);
+        values.putAll(aggregationFieldExtractor.extract(bureaus));
+        values.putAll(aggregationFieldExtractor.extract(bureauBalances));
+        values.putAll(aggregationFieldExtractor.extract(creditCardBalances));
+        values.putAll(aggregationFieldExtractor.extract(installmentPayments));
+        values.putAll(aggregationFieldExtractor.extract(posCashBalances));
+        values.putAll(aggregationFieldExtractor.extract(previousApplications));
 
-        extractFields(application, values);
-        extractAggregations(bureaus, values);
-        extractAggregations(bureauBalances, values);
-        extractAggregations(creditCardBalances, values);
-        extractAggregations(installmentPayments, values);
-        extractAggregations(posCashBalances, values);
-        extractAggregations(previousApplications, values);
+        // Validation.
+        testDataValidator.validate(values);
 
-        Map<String, Double> vector = new HashMap<>();
+        Map<String, Double> vector = fieldMapping.emptyVector();
+        vector.putAll(fieldMapping.map(values));
 
-        for (int i = 0; i < 1000; i++) {
-            if (!values.containsKey(String.valueOf(i)))
-                values.put(String.valueOf(i), Double.NaN);
-        }
+        double prediction = model.predict(vector);
 
-        for (Map.Entry<String, Double> e : encodeFieldNames(values).entrySet()) {
-            vector.put(e.getKey(), e.getValue());
-        }
-
-        double prediction = model.predict(VectorUtils.of(vector));
-
-        System.out.println("Data: " + valuesToString(values) + ", prediction: " + prediction);
+        System.out.println("Data: " + Arrays.toString(values.entrySet().toArray()) + ", prediction: " + prediction);
 
         return prediction > 0.5 ? 1L : 0;
-    }
-
-    private void extractAggregations(List<?> objs, Map<String, Double> values) throws IllegalAccessException {
-        List<Map<String, Double>> vectors = new ArrayList<>();
-
-        for (Object obj : objs) {
-            Map<String, Double> vector = new HashMap<>();
-            extractFields(obj, vector);
-        }
-
-        Map<String, List<Double>> aggregatedVectors = new HashMap<>();
-        for (Map<String, Double> vector : vectors) {
-            for (String fieldName : vector.keySet()) {
-                Double fieldValue = vector.get(fieldName);
-                if (!aggregatedVectors.containsKey(fieldName))
-                    aggregatedVectors.put(fieldName, new ArrayList<>());
-            }
-        }
-
-        for (String fieldName : aggregatedVectors.keySet()) {
-            values.put(fieldName + "_MIN", min(aggregatedVectors.get(fieldName)));
-            values.put(fieldName + "_MAX", max(aggregatedVectors.get(fieldName)));
-            values.put(fieldName + "_MEAN", mean(aggregatedVectors.get(fieldName)));
-            values.put(fieldName + "_VAR", var(aggregatedVectors.get(fieldName)));
-        }
-    }
-
-    private Double min(List<Double> values) {
-        return asStream(values).min().orElse(Double.NaN);
-    }
-
-    private Double max(List<Double> values) {
-        return asStream(values).max().orElse(Double.NaN);
-    }
-
-    private Double mean(List<Double> values) {
-        return asStream(values).sum() / sizeOf(values);
-    }
-
-    private Double var(List<Double> values) {
-        return asStream(values).map(v -> Math.pow(v - mean(values), 2.)).sum() / sizeOf(values);
-    }
-
-    @NotNull private DoubleStream asStream(List<Double> values) {
-        return values.stream().mapToDouble(x -> x);
-    }
-
-    private double sizeOf(List<Double> values) {
-        return values.isEmpty() ? 1. : values.size();
-    }
-
-    private void extractFields(Object obj, Map<String, Double> values) throws IllegalAccessException {
-        for (Field field : obj.getClass().getDeclaredFields()) {
-            field.setAccessible(true);
-            Object value = field.get(obj);
-
-            JsonProperty jsonProperty = field.getAnnotation(JsonProperty.class);
-            if (jsonProperty == null)
-                continue;
-
-            if (value instanceof Number) {
-                String fieldName = jsonProperty.value();
-                Double fieldValue = ((Number)value).doubleValue();
-                values.put(fieldName, fieldValue);
-            }
-            else if (value instanceof String) {
-                String fieldName = jsonProperty.value();
-                String fieldValue = ((String)value).replace(" ", "");
-
-                for (String key : fieldMapping.keySet()) {
-                    if (key.startsWith(fieldName)) {
-                        values.put(key, 0.0);
-                    }
-                }
-
-                if (!fieldValue.isEmpty()) {
-                    values.put(fieldName + "_" + fieldValue, 1.0);
-                }
-            }
-        }
-    }
-
-    private Double get(String str) {
-        if (str == null || str.isEmpty())
-            return null;
-
-        try {
-            return Double.parseDouble(str);
-        }
-        catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    private void initialize(Ignite ignite) throws IOException {
-        applicationCache = ignite.cache("Application");
-        bureauCache = ignite.cache("Bureau");
-        bureauBalanceCache = ignite.cache("BureauBalance");
-        creditCardBalanceCache = ignite.cache("CreditCardBalance");
-        installmentPaymentCache = ignite.cache("InstallmentPayment");
-        posCashBalanceCache = ignite.cache("POSCashBalance");
-        previousApplicationCache = ignite.cache("PreviousApplication");
-
-        if (!ignite.cluster().nodeLocalMap().containsKey("MODEL")) {
-            ignite.cluster().nodeLocalMap().put("MODEL", modelBuilder.build(new InMemoryModelReader(readResource("model.txt")), parser));
-        }
-
-        model = (IgniteModel<NamedVector, Double>)ignite.cluster().nodeLocalMap().get("MODEL");
-
-        fieldMapping = fieldMapping();
-    }
-
-    private byte[] readResource(String resource) throws IOException {
-        try (InputStream is = ApplicationHandler.class.getClassLoader().getResourceAsStream(resource)) {
-            return IOUtils.readFully(is, -1, true);
-        }
-    }
-
-    private List<Bureau> getBureaus(Long skIdCurr) {
-        List<Bureau> result = new ArrayList<>();
-
-        String query = "from Bureau where skIdCurr = ?";
-        try (QueryCursor<Cache.Entry<AffinityKey<Long>, Bureau>> cursor = bureauCache.query(
-            new SqlQuery<AffinityKey<Long>, Bureau>(Bureau.class, query).setArgs(skIdCurr)
-        )) {
-            for (Cache.Entry<AffinityKey<Long>, Bureau> entry : cursor) {
-                result.add(entry.getValue());
-            }
-        }
-
-        return result;
-    }
-
-    private List<BureauBalance> getBureauBalances(Long skIdCurr) {
-        List<BureauBalance> result = new ArrayList<>();
-
-        String query = "from BureauBalance where skIdCurr = ?";
-        try (QueryCursor<Cache.Entry<AffinityKey<Long>, BureauBalance>> cursor = bureauBalanceCache.query(
-            new SqlQuery<AffinityKey<Long>, BureauBalance>(BureauBalance.class, query).setArgs(skIdCurr)
-        )) {
-            for (Cache.Entry<AffinityKey<Long>, BureauBalance> entry : cursor) {
-                result.add(entry.getValue());
-            }
-        }
-
-        return result;
-    }
-
-    private List<CreditCardBalance> getCreditCardBalances(Long skIdCurr) {
-        List<CreditCardBalance> result = new ArrayList<>();
-
-        String query = "from CreditCardBalance where skIdCurr = ?";
-        try (QueryCursor<Cache.Entry<AffinityKey<Long>, CreditCardBalance>> cursor = creditCardBalanceCache.query(
-            new SqlQuery<AffinityKey<Long>, CreditCardBalance>(CreditCardBalance.class, query).setArgs(skIdCurr)
-        )) {
-            for (Cache.Entry<AffinityKey<Long>, CreditCardBalance> entry : cursor) {
-                result.add(entry.getValue());
-            }
-        }
-
-        return result;
-    }
-
-    private List<InstallmentPayment> getInstallmentPayments(Long skIdCurr) {
-        List<InstallmentPayment> result = new ArrayList<>();
-
-        String query = "from InstallmentPayment where skIdCurr = ?";
-        try (QueryCursor<Cache.Entry<AffinityKey<Long>, InstallmentPayment>> cursor = installmentPaymentCache.query(
-            new SqlQuery<AffinityKey<Long>, InstallmentPayment>(InstallmentPayment.class, query).setArgs(skIdCurr)
-        )) {
-            for (Cache.Entry<AffinityKey<Long>, InstallmentPayment> entry : cursor) {
-                result.add(entry.getValue());
-            }
-        }
-
-        return result;
-    }
-
-    private List<POSCashBalance> getPOSCashBalances(Long skIdCurr) {
-        List<POSCashBalance> result = new ArrayList<>();
-
-        String query = "from POSCashBalance where skIdCurr = ?";
-        try (QueryCursor<Cache.Entry<AffinityKey<Long>, POSCashBalance>> cursor = posCashBalanceCache.query(
-            new SqlQuery<AffinityKey<Long>, POSCashBalance>(POSCashBalance.class, query).setArgs(skIdCurr)
-        )) {
-            for (Cache.Entry<AffinityKey<Long>, POSCashBalance> entry : cursor) {
-                result.add(entry.getValue());
-            }
-        }
-
-        return result;
-    }
-
-    private List<PreviousApplication> getPreviousApplications(Long skIdCurr) {
-        List<PreviousApplication> result = new ArrayList<>();
-
-        String query = "from PreviousApplication where skIdCurr = ?";
-        try (QueryCursor<Cache.Entry<AffinityKey<Long>, PreviousApplication>> cursor = previousApplicationCache.query(
-            new SqlQuery<AffinityKey<Long>, PreviousApplication>(PreviousApplication.class, query).setArgs(skIdCurr)
-        )) {
-            for (Cache.Entry<AffinityKey<Long>, PreviousApplication> entry : cursor) {
-                result.add(entry.getValue());
-            }
-        }
-
-        return result;
     }
 }
