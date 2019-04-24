@@ -125,7 +125,24 @@ public class ApplicationHandler implements IgniteRunnable {
 
         long end = System.nanoTime();
 
-//        System.out.println("Time: " + (end - start) / 1_000_000.0 + "ms");
+        System.out.println("Time: " + (end - start) / 1_000_000.0 + "ms");
+    }
+
+    private String valuesToString(Map<String, Double> values) {
+        StringBuilder bldr = new StringBuilder();
+
+        bldr.append("{");
+        for (Map.Entry<String, Double> e : values.entrySet()) {
+            if (!Double.isNaN(e.getValue())) {
+                bldr.append(e.getKey() + ": " + e.getValue() + ", ");
+            }
+        }
+
+        if (bldr.length() > 1)
+            bldr.delete(bldr.length() - 2, bldr.length());
+        bldr.append("}");
+
+        return bldr.toString();
     }
 
     private Map<String, String> fieldMapping() {
@@ -136,7 +153,7 @@ public class ApplicationHandler implements IgniteRunnable {
             Scanner scanner = new Scanner(is);
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                map.put(line, "f" + idx);
+                map.put(line, String.valueOf(idx));
                 idx++;
             }
         }
@@ -157,23 +174,116 @@ public class ApplicationHandler implements IgniteRunnable {
 
         Map<String, Double> values = new HashMap<>();
 
-        for (Field field : Application.class.getDeclaredFields()) {
-            field.setAccessible(true);
-            Object value = field.get(application);
-
-            JsonProperty jsonProperty = field.getAnnotation(JsonProperty.class);
-            if (jsonProperty != null && value instanceof Number && fieldMapping.containsKey(jsonProperty.value())) {
-                values.put(fieldMapping.get(jsonProperty.value()), ((Number)value).doubleValue());
-            }
+        for (int i = 0; i < 1000; i++) {
+            if (!values.containsKey(String.valueOf(i)))
+                values.put(String.valueOf(i), Double.NaN);
         }
+
+        extractFields(application, values);
+        extractAggregations(bureaus, values);
+        extractAggregations(bureauBalances, values);
+        extractAggregations(creditCardBalances, values);
+        extractAggregations(installmentPayments, values);
+        extractAggregations(posCashBalances, values);
+        extractAggregations(previousApplications, values);
 
         NamedVector vector = VectorUtils.of(values);
 
         double prediction = model.predict(vector);
 
-        System.out.println("Data: " + namedVectorToString(vector) + ", target: " + application.getTarget() + ", prediction: " + prediction);
+        System.out.println("Data: " + valuesToString(values) + ", prediction: " + prediction);
 
         return prediction > 0.5 ? 1L : 0;
+    }
+
+    private void extractAggregations(List<?> objs, Map<String, Double> values) throws IllegalAccessException {
+        List<Map<String, Double>> vectors = new ArrayList<>();
+
+        for (Object obj : objs) {
+            Map<String, Double> vector = new HashMap<>();
+            extractFields(obj, vector);
+        }
+
+        Map<String, List<Double>> aggregatedVectors = new HashMap<>();
+        for (Map<String, Double> vector : vectors) {
+            for (String fieldName : vector.keySet()) {
+                Double fieldValue = vector.get(fieldName);
+                if (!aggregatedVectors.containsKey(fieldName))
+                    aggregatedVectors.put(fieldName, new ArrayList<>());
+            }
+        }
+
+        for (String fieldName : aggregatedVectors.keySet()) {
+            putIntoValues(values, fieldName + "_MIN", min(aggregatedVectors.get(fieldName)));
+            putIntoValues(values, fieldName + "_MAX", max(aggregatedVectors.get(fieldName)));
+            putIntoValues(values, fieldName + "_MEAN", mean(aggregatedVectors.get(fieldName)));
+            putIntoValues(values, fieldName + "_VAR", var(aggregatedVectors.get(fieldName)));
+        }
+    }
+
+    private void putIntoValues(Map<String, Double> values, String fieldName, Double value) {
+        if (fieldMapping.containsKey(fieldName)) {
+            values.put(fieldMapping.get(fieldName), value);
+        }
+    }
+
+    private Double min(List<Double> values) {
+        return 42.0;
+    }
+
+    private Double max(List<Double> values) {
+        return 42.0;
+    }
+
+    private Double mean(List<Double> values) {
+        return 42.0;
+    }
+
+    private Double var(List<Double> values) {
+        return 42.0;
+    }
+
+    private void extractFields(Object obj, Map<String, Double> values) throws IllegalAccessException {
+        for (Field field : obj.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            Object value = field.get(obj);
+
+            JsonProperty jsonProperty = field.getAnnotation(JsonProperty.class);
+            if (jsonProperty == null)
+                continue;
+
+            if (value instanceof Number) {
+                String fieldName = jsonProperty.value();
+                Double fieldValue = ((Number)value).doubleValue();
+                putIntoValues(values, fieldName, fieldValue);
+            }
+            else if (value instanceof String) {
+                String fieldName = jsonProperty.value();
+                String fieldValue = ((String)value).replace(" ", "");
+
+                for (String key : fieldMapping.keySet()) {
+                    if (key.startsWith(fieldName)) {
+                        putIntoValues(values, key, 0.0);
+                    }
+                }
+
+                if (!fieldValue.isEmpty()) {
+                    putIntoValues(values, fieldName + "_" + fieldValue, 1.0);
+                }
+            }
+        }
+    }
+
+    private Double get(String str) {
+        if (str == null || str.isEmpty())
+            return null;
+
+        try {
+            return Double.parseDouble(str);
+        }
+        catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private void initialize(Ignite ignite) throws IOException {
@@ -192,20 +302,6 @@ public class ApplicationHandler implements IgniteRunnable {
         model = (IgniteModel<NamedVector, Double>)ignite.cluster().nodeLocalMap().get("MODEL");
 
         fieldMapping = fieldMapping();
-    }
-
-    private String namedVectorToString(NamedVector vector) {
-        StringBuilder res = new StringBuilder();
-
-        res.append("{");
-        for (String key : vector.getKeys()) {
-            res.append(key + ":" + vector.get(key) + ", ");
-        }
-        if (res.length() > 1)
-            res.delete(res.length() - 2, res.length());
-        res.append("}");
-
-        return res.toString();
     }
 
     private byte[] readResource(String resource) throws IOException {
