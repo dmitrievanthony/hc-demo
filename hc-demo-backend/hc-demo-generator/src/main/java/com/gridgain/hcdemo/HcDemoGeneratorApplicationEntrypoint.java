@@ -38,6 +38,7 @@ import java.util.zip.ZipInputStream;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteCompute;
+import org.apache.ignite.IgniteQueue;
 import org.apache.ignite.binary.BinaryObject;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.slf4j.Logger;
@@ -66,6 +67,11 @@ public class HcDemoGeneratorApplicationEntrypoint {
 
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) throws IOException {
+        IgniteQueue<String> msgQueue = MessageQueue.get(ignite);
+        String msg = msgQueue.take();
+        if(!msg.equals(MessageQueue.START_MSG))
+            throw new RuntimeException("Illegal message: " + msg);
+
         dataLoader.loadCSV(
             new String[]{
                 "data/application_train00.csv.zip",

@@ -17,7 +17,6 @@
 
 package com.gridgain.hcdemo;
 
-import com.gridgain.hcdemo.model.Application;
 import com.gridgain.hcdemo.model.Bureau;
 import com.gridgain.hcdemo.model.BureauBalance;
 import com.gridgain.hcdemo.model.CreditCardBalance;
@@ -33,9 +32,8 @@ import com.gridgain.hcdemo.preprocessor.PreviousApplicationPreprocessor;
 import java.io.IOException;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
-import org.apache.ignite.binary.BinaryObject;
+import org.apache.ignite.IgniteQueue;
 import org.apache.ignite.cache.affinity.AffinityKey;
-import org.apache.ignite.configuration.CacheConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,10 +88,14 @@ public class HcDemoIgniteServerEntrypoint {
     @Autowired
     private IgniteCache<AffinityKey<Long>, PreviousApplication> previousApplicationCache;
 
+    private IgniteQueue<String> messageQueue;
+
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) throws IOException {
+        messageQueue = MessageQueue.get(ignite);
+
         dataLoader.loadCSV(
-            new String[]{
+            new String[] {
                 "data/bureau00.csv.zip",
                 "data/bureau01.csv.zip"
             },
@@ -103,7 +105,7 @@ public class HcDemoIgniteServerEntrypoint {
         );
 
         dataLoader.loadCSV(
-            new String[]{
+            new String[] {
                 "data/bureau_balance00.csv.zip",
                 "data/bureau_balance01.csv.zip",
                 "data/bureau_balance02.csv.zip",
@@ -115,7 +117,7 @@ public class HcDemoIgniteServerEntrypoint {
         );
 
         dataLoader.loadCSV(
-            new String[]{
+            new String[] {
                 "data/credit_card_balance00.csv.zip",
                 "data/credit_card_balance01.csv.zip",
                 "data/credit_card_balance02.csv.zip",
@@ -127,7 +129,7 @@ public class HcDemoIgniteServerEntrypoint {
         );
 
         dataLoader.loadCSV(
-            new String[]{
+            new String[] {
                 "data/installments_payments00.csv.zip",
                 "data/installments_payments00.csv.zip",
                 "data/installments_payments00.csv.zip",
@@ -140,7 +142,7 @@ public class HcDemoIgniteServerEntrypoint {
         );
 
         dataLoader.loadCSV(
-            new String[]{
+            new String[] {
                 "data/POS_CASH_balance00.csv.zip",
                 "data/POS_CASH_balance01.csv.zip",
                 "data/POS_CASH_balance02.csv.zip",
@@ -152,7 +154,7 @@ public class HcDemoIgniteServerEntrypoint {
         );
 
         dataLoader.loadCSV(
-            new String[]{
+            new String[] {
                 "data/previous_application00.csv.zip",
                 "data/previous_application01.csv.zip",
                 "data/previous_application02.csv.zip"
@@ -161,5 +163,7 @@ public class HcDemoIgniteServerEntrypoint {
             previousApplicationPreprocessor,
             previousApplicationCache
         );
+
+        messageQueue.put(MessageQueue.START_MSG);
     }
 }
