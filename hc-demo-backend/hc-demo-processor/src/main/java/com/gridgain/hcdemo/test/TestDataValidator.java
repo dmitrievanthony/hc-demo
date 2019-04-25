@@ -39,9 +39,12 @@ public class TestDataValidator {
     }
 
     private void assertEquals(Map<String, Double> expected, Map<String, Double> actual) {
+        Double expectedId = expected.get("SK_CURR_ID");
+        Double actualId = actual.get("SK_CURR_ID");
+
         for (String key : expected.keySet()) {
             if (!actual.containsKey(key)) {
-                log.error("Expected row contains '{}', but actual doesn't.", key);
+                log.error("Expected row contains '{}' ({}), but actual doesn't.", key, expected.get(key));
             }
             else {
                 Double expectedValue = expected.get(key);
@@ -49,12 +52,6 @@ public class TestDataValidator {
                 if (Math.abs(expectedValue - actualValue) > 0.001) {
                     log.error("Expected value and actual value are not equal [col='{}', exp='{}', act='{}']", key, expectedValue, actualValue);
                 }
-            }
-        }
-
-        for (String key : actual.keySet()) {
-            if (!expected.containsKey(key)) {
-                log.error("Expected row doesn't contain '{}', but actual does.", key);
             }
         }
     }

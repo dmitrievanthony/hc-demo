@@ -35,6 +35,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -84,7 +85,7 @@ public class DataLoader {
                     .with(schema)
                     .readValues(zis);
 
-                Map<K, T> batch = new HashMap<>();
+                Map<K, T> batch = new LinkedHashMap<>();
                 int batchNumber = 0;
                 while (objects.hasNext()) {
                     if (properties.getRowsToBeLoaded() != -1 && properties.getRowsToBeLoaded() == row)

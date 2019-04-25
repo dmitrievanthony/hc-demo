@@ -67,9 +67,6 @@ public class FieldMapping {
             if (contains(fieldName)) {
                 res.put(map(fieldName), fieldValue);
             }
-            else {
-                log.warn("Field {} not found.", fieldName);
-            }
         }
 
         return res;

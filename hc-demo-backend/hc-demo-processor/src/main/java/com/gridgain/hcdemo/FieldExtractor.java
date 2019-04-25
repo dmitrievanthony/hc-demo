@@ -19,43 +19,62 @@ package com.gridgain.hcdemo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import org.apache.ignite.lang.IgniteBiTuple;
 
 public class FieldExtractor {
 
     private final FieldMapping fieldMapping;
 
+    private final Map<Class, List<Function<Object, Map<String, Double>>>> processors;
+
     public FieldExtractor(FieldMapping fieldMapping) {
         this.fieldMapping = fieldMapping;
+        this.processors = new HashMap<>();
     }
 
     public Map<String, Double> extract(Object delegate) {
         Map<String, Double> res = new HashMap<>();
 
-        for (Map.Entry<String, Object> field : getFields(delegate).entrySet()) {
+        for (Map.Entry<String, FieldTypeWithValue> field : getFields(delegate).entrySet()) {
             String fieldName = field.getKey();
-            Object fieldValue = field.getValue();
+            FieldTypeWithValue fieldValue = field.getValue();
 
-            if (fieldValue == null) {
-                /* Do nothing. */
+            if (Number.class.isAssignableFrom(fieldValue.clazz)) {
+                handleNumberField(fieldName, (Number)fieldValue.value, res);
             }
-            else if (fieldValue instanceof Number) {
-                handleNumberField(fieldName, (Number)fieldValue, res);
-            }
-            else if (fieldValue instanceof String) {
-                handleStringField(fieldName, (String)fieldValue, res);
+            else if (String.class.isAssignableFrom(fieldValue.clazz)) {
+                handleStringField(fieldName, (String)fieldValue.value, res);
             }
             else {
-                throw new IllegalStateException("Field should be Number or String.");
+                throw new IllegalStateException("Field should be Number or String [name=" + fieldName + ", class=" + fieldValue.clazz + ", value=" + fieldValue.value + "]");
+            }
+        }
+
+        List<Function<Object, Map<String, Double>>> objectProcessors = processors.get(delegate.getClass());
+        if (objectProcessors != null) {
+            for (Function<Object, Map<String, Double>> processor : objectProcessors) {
+                res.putAll(processor.apply(delegate));
             }
         }
 
         return res;
     }
 
+    public <T> void registerFieldProcessor(Class<T> clazz, Function<T, Map<String, Double>> objectProcessor) {
+        if (!processors.containsKey(clazz))
+            processors.put(clazz, new ArrayList<>());
+
+        processors.get(clazz).add(e -> objectProcessor.apply((T)e));
+    }
+
     private void handleNumberField(String fieldName, Number fieldValue, Map<String, Double> res) {
-        res.put(fieldName, fieldValue.doubleValue());
+        res.put(fieldName, fieldValue == null ? Double.NaN : fieldValue.doubleValue());
     }
 
     private void handleStringField(String fieldName, String fieldValue, Map<String, Double> res) {
@@ -65,20 +84,22 @@ public class FieldExtractor {
         }
 
         if (fieldValue != null) {
-            fieldName = fieldName + "_" + fieldValue.replace(" ", "");
+            fieldName = fieldName + "_" + fieldValue;
             res.put(fieldName, 1.0);
         }
     }
 
-    private Map<String, Object> getFields(Object delegate) {
-        Map<String, Object> res = new HashMap<>();
+    private Map<String, FieldTypeWithValue> getFields(Object delegate) {
+        Map<String, FieldTypeWithValue> res = new HashMap<>();
 
         Class delegateClass = delegate.getClass();
         for (Field field : delegateClass.getDeclaredFields()) {
             String fieldName = getFieldName(field);
-            Object fieldValue = getFieldValue(field, delegate);
 
-            res.put(fieldName, fieldValue);
+            if (fieldName != null) {
+                Object fieldValue = getFieldValue(field, delegate);
+                res.put(fieldName, new FieldTypeWithValue(field.getType(), fieldValue));
+            }
         }
 
         return res;
@@ -99,5 +120,17 @@ public class FieldExtractor {
         JsonProperty jsonProperty = field.getAnnotation(JsonProperty.class);
 
         return jsonProperty == null ? null : jsonProperty.value();
+    }
+
+    private static class FieldTypeWithValue {
+
+        private final Class<?> clazz;
+
+        private final Object value;
+
+        public FieldTypeWithValue(Class<?> clazz, Object value) {
+            this.clazz = clazz;
+            this.value = value;
+        }
     }
 }

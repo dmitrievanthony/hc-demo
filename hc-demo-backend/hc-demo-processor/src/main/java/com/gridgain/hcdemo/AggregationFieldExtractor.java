@@ -20,10 +20,14 @@ package com.gridgain.hcdemo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class AggregationFieldExtractor {
+
+    private static final long SCALE = 1_000_000;
 
     private final FieldExtractor fieldExtractor;
 
@@ -31,7 +35,7 @@ public class AggregationFieldExtractor {
         this.fieldExtractor = fieldExtractor;
     }
 
-    public Map<String, Double> extract(List<?> delegates) {
+    public Map<String, Double> extract(String prefix, List<?> delegates) {
         Map<String, List<Double>> aggregatedFields = new HashMap<>();
 
         for (Object delegate : delegates) {
@@ -46,23 +50,93 @@ public class AggregationFieldExtractor {
             }
         }
 
-        return aggregate(aggregatedFields);
+        return aggregate(prefix, aggregatedFields);
     }
 
-    private Map<String, Double> aggregate(Map<String, List<Double>> aggregatedFields) {
+    private Map<String, Double> aggregate(String prefix, Map<String, List<Double>> aggregatedFields) {
         Map<String, Double> res = new HashMap<>();
 
         for (Map.Entry<String, List<Double>> e : aggregatedFields.entrySet()) {
             String fieldName = e.getKey();
             List<Double> fieldValues = e.getValue();
 
-            res.put(fieldName + "_MIN", calculateMin(fieldValues));
-            res.put(fieldName + "_MAX", calculateMax(fieldValues));
-            res.put(fieldName + "_MEAN", calculateMean(fieldValues));
-            res.put(fieldName + "_VAR", calculateVar(fieldValues));
+            res.put(prefix + "_" + fieldName + "_MIN", calculateMin(fieldValues));
+            res.put(prefix + "_" + fieldName + "_MAX", calculateMax(fieldValues));
+            res.put(prefix + "_" + fieldName + "_MEAN", calculateMean(fieldValues));
+            res.put(prefix + "_" + fieldName + "_VAR", calculateVar(fieldValues));
+            res.put(prefix + "_" + fieldName + "_MOD", calculateMod(fieldValues));
+            res.put(prefix + "_" + fieldName + "_MEDI", calculateMedi(fieldValues));
+            res.put(prefix + "_" + fieldName + "_COUNT", calculateCount(fieldValues));
+            res.put(prefix + "_" + fieldName + "_SUM", calculateSum(fieldValues));
+            res.put(prefix + "_" + fieldName + "_NUNIQUE", calculateNUnique(fieldValues));
         }
 
         return res;
+    }
+
+    private Double calculateMod(List<Double> values) {
+        Map<Long, Integer> hist = new HashMap<>();
+
+        for (Double value : values) {
+            Long longValue = (long) (value * SCALE);
+            if (!hist.containsKey(longValue))
+                hist.put(longValue, 0);
+
+            hist.put(longValue, hist.get(longValue) + 1);
+        }
+
+        double res = Double.NaN;
+        Integer resCount = 0;
+
+        for (Map.Entry<Long, Integer> e : hist.entrySet()) {
+            Integer count = e.getValue();
+            if (count > resCount) {
+                resCount = count;
+                res = e.getKey().doubleValue() / SCALE;
+            }
+        }
+
+        return res;
+    }
+
+    private Double calculateSum(List<Double> values) {
+        if (values.isEmpty())
+            return Double.NaN;
+
+        double res = 0.0;
+        for (Double value : values)
+            res += value;
+
+        return res;
+    }
+
+    private Double calculateNUnique(List<Double> values) {
+        Set<Long> set = new HashSet<>();
+
+        for (Double value : values) {
+            set.add((long)(value * SCALE));
+        }
+
+        return Double.valueOf(set.size());
+    }
+
+    private Double calculateCount(List<Double> values) {
+        return Double.valueOf(values.size());
+    }
+
+    private Double calculateMedi(List<Double> values) {
+        if (values.isEmpty())
+            return Double.NaN;
+
+        Collections.sort(values);
+        int m = values.size() / 2;
+
+        if (values.size() % 2 == 0) {
+            return (values.get(m - 1) + values.get(m)) / 2;
+        }
+        else {
+            return values.get(m);
+        }
     }
 
     private Double calculateMin(List<Double> values) {

@@ -24,7 +24,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class HcDemoGeneratorApplication {
 
     public static void main(String[] args) throws InterruptedException {
-        Thread.sleep(10 * 1000);
         SpringApplication.run(HcDemoGeneratorApplication.class, args);
     }
 }

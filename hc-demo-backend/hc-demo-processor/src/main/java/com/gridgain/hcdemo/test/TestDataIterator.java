@@ -17,6 +17,12 @@
 
 package com.gridgain.hcdemo.test;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,32 +30,42 @@ import java.util.Scanner;
 
 public class TestDataIterator implements AutoCloseable, Iterator<Map<String, Double>> {
 
-    private final Scanner scanner;
+    private final InputStream inputStream;
 
-    private final String[] header;
+    private final MappingIterator<Map<String, String>> iterator;
 
     public TestDataIterator(String resource) {
-        scanner = new Scanner(TestDataIterator.class.getClassLoader().getResourceAsStream(resource));
-        header = scanner.nextLine().split(",");
-    }
+        inputStream = TestDataIterator.class.getClassLoader().getResourceAsStream(resource);
 
-    @Override public void close() throws Exception {
-        scanner.close();
+        CsvMapper mapper = new CsvMapper();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+        try {
+            iterator = mapper.readerFor(Map.class).with(schema).readValues(inputStream);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override public boolean hasNext() {
-        return scanner.hasNextLine();
+        return iterator.hasNext();
     }
 
     @Override public Map<String, Double> next() {
-        String[] line = scanner.nextLine().split(",");
-
         Map<String, Double> res = new HashMap<>();
 
-        for (int i = 0; i < header.length && i < line.length; i++) {
-            res.put(header[i], line[i].isEmpty() ? Double.NaN : Double.valueOf(line[i]));
+        for (Map.Entry<String, String> e : iterator.next().entrySet()) {
+            String fieldName = e.getKey();
+            String fieldValue = e.getValue();
+
+            if (!fieldValue.isEmpty())
+                res.put(fieldName, Double.valueOf(fieldValue));
         }
 
         return res;
+    }
+
+    @Override public void close() throws Exception {
+        inputStream.close();
     }
 }

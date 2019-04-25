@@ -42,7 +42,7 @@ public class Application implements Identifiable<Long>, Serializable {
     private String flagOwnCar;
 
     @JsonProperty("FLAG_OWN_REALTY")
-    private String flagOwnRealy;
+    private String flagOwnRealty;
 
     @JsonProperty("CNT_CHILDREN")
     private Long cntChildren;
@@ -436,12 +436,12 @@ public class Application implements Identifiable<Long>, Serializable {
         this.flagOwnCar = flagOwnCar;
     }
 
-    public String getFlagOwnRealy() {
-        return flagOwnRealy;
+    public String getFlagOwnRealty() {
+        return flagOwnRealty;
     }
 
-    public void setFlagOwnRealy(String flagOwnRealy) {
-        this.flagOwnRealy = flagOwnRealy;
+    public void setFlagOwnRealty(String flagOwnRealty) {
+        this.flagOwnRealty = flagOwnRealty;
     }
 
     public Long getCntChildren() {
@@ -1370,5 +1370,132 @@ public class Application implements Identifiable<Long>, Serializable {
 
     public void setAmtReqCreditBureauYear(Double amtReqCreditBureauYear) {
         this.amtReqCreditBureauYear = amtReqCreditBureauYear;
+    }
+
+    @Override public String toString() {
+        return "Application{" +
+            "id=" + id +
+            ", target=" + target +
+            ", contractType='" + contractType + '\'' +
+            ", codeGender='" + codeGender + '\'' +
+            ", flagOwnCar='" + flagOwnCar + '\'' +
+            ", flagOwnRealty='" + flagOwnRealty + '\'' +
+            ", cntChildren=" + cntChildren +
+            ", amtIncomeTotal=" + amtIncomeTotal +
+            ", amtCredit=" + amtCredit +
+            ", amtAnnuity=" + amtAnnuity +
+            ", amtGoodsPrice=" + amtGoodsPrice +
+            ", nameTypeSuite='" + nameTypeSuite + '\'' +
+            ", nameIncomeType='" + nameIncomeType + '\'' +
+            ", nameEducationType='" + nameEducationType + '\'' +
+            ", nameFamilyStatus='" + nameFamilyStatus + '\'' +
+            ", nameHousingType='" + nameHousingType + '\'' +
+            ", regionPopulationRelative=" + regionPopulationRelative +
+            ", daysBirth=" + daysBirth +
+            ", daysEmployed=" + daysEmployed +
+            ", daysRegistration=" + daysRegistration +
+            ", daysIdPublished=" + daysIdPublished +
+            ", ownCarAge=" + ownCarAge +
+            ", flagMobil=" + flagMobil +
+            ", flagEmpPhone=" + flagEmpPhone +
+            ", flagWorkPhone=" + flagWorkPhone +
+            ", flagContMobile=" + flagContMobile +
+            ", flagPhone=" + flagPhone +
+            ", flagEmail=" + flagEmail +
+            ", occupationType='" + occupationType + '\'' +
+            ", cntFamMembers=" + cntFamMembers +
+            ", regionRatingClient=" + regionRatingClient +
+            ", regionRatingClientWCity=" + regionRatingClientWCity +
+            ", apprProcessStart='" + apprProcessStart + '\'' +
+            ", hourApprProcessStart=" + hourApprProcessStart +
+            ", regRegionNotLiveRegion=" + regRegionNotLiveRegion +
+            ", regRegionNotWorkRegion=" + regRegionNotWorkRegion +
+            ", liveRegionNotWorkRegion=" + liveRegionNotWorkRegion +
+            ", regCityNotLiveCity=" + regCityNotLiveCity +
+            ", regCityNotWorkCity=" + regCityNotWorkCity +
+            ", liveCityNotWorkCity=" + liveCityNotWorkCity +
+            ", organizationType='" + organizationType + '\'' +
+            ", extSource1=" + extSource1 +
+            ", extSource2=" + extSource2 +
+            ", extSource3=" + extSource3 +
+            ", apartmentsAvg=" + apartmentsAvg +
+            ", basementareaAvg=" + basementareaAvg +
+            ", yearsBeginexpluatationAvg=" + yearsBeginexpluatationAvg +
+            ", yearsBuildAvg=" + yearsBuildAvg +
+            ", commonareaAvg=" + commonareaAvg +
+            ", elevatorsAvg=" + elevatorsAvg +
+            ", entrancesAvg=" + entrancesAvg +
+            ", floorsmaxAvg=" + floorsmaxAvg +
+            ", floorsminAvg=" + floorsminAvg +
+            ", landareaAvg=" + landareaAvg +
+            ", livingapartmentsAvg=" + livingapartmentsAvg +
+            ", livingareaAvg=" + livingareaAvg +
+            ", nonlivingapartmentsAvg=" + nonlivingapartmentsAvg +
+            ", nonlivingareaAvg=" + nonlivingareaAvg +
+            ", apartmentsMode=" + apartmentsMode +
+            ", basementareaMode=" + basementareaMode +
+            ", yearsBeginexpluatationMode=" + yearsBeginexpluatationMode +
+            ", yearsBuildMode=" + yearsBuildMode +
+            ", commonareaMode=" + commonareaMode +
+            ", elevatorsMode=" + elevatorsMode +
+            ", entracesMode=" + entracesMode +
+            ", floormaxMode=" + floormaxMode +
+            ", floorminMode=" + floorminMode +
+            ", landareaMode=" + landareaMode +
+            ", livingapartmentsMode=" + livingapartmentsMode +
+            ", livingareaMode=" + livingareaMode +
+            ", nonlivingapartmentsMode=" + nonlivingapartmentsMode +
+            ", nonlivingareaMode=" + nonlivingareaMode +
+            ", apartmentsMedi=" + apartmentsMedi +
+            ", basementareaMedi=" + basementareaMedi +
+            ", yearsBeginexpluatationMedi=" + yearsBeginexpluatationMedi +
+            ", yearsBuildMedi=" + yearsBuildMedi +
+            ", commonareaMedi=" + commonareaMedi +
+            ", elevatorsMedi=" + elevatorsMedi +
+            ", entrancesMedi=" + entrancesMedi +
+            ", floorsmaxMedi=" + floorsmaxMedi +
+            ", floorsminMedi=" + floorsminMedi +
+            ", landareaMedi=" + landareaMedi +
+            ", livingapartmentsMedi=" + livingapartmentsMedi +
+            ", livingareaMedi=" + livingareaMedi +
+            ", nonlivingapartmentsMedi=" + nonlivingapartmentsMedi +
+            ", nonlivingareaMedi=" + nonlivingareaMedi +
+            ", fondkapremontMode='" + fondkapremontMode + '\'' +
+            ", housetypeMode='" + housetypeMode + '\'' +
+            ", totalareaMode=" + totalareaMode +
+            ", wallsmaterialMode='" + wallsmaterialMode + '\'' +
+            ", emergencystateMode='" + emergencystateMode + '\'' +
+            ", osb30CntSocialCircle=" + osb30CntSocialCircle +
+            ", def30CntSocialCircle=" + def30CntSocialCircle +
+            ", osb60CntSocialCircle=" + osb60CntSocialCircle +
+            ", def60CntSocialCircle=" + def60CntSocialCircle +
+            ", daysLastPhoneChange=" + daysLastPhoneChange +
+            ", flagDocument2=" + flagDocument2 +
+            ", flagDocument3=" + flagDocument3 +
+            ", flagDocument4=" + flagDocument4 +
+            ", flagDocument5=" + flagDocument5 +
+            ", flagDocument6=" + flagDocument6 +
+            ", flagDocument7=" + flagDocument7 +
+            ", flagDocument8=" + flagDocument8 +
+            ", flagDocument9=" + flagDocument9 +
+            ", flagDocument10=" + flagDocument10 +
+            ", flagDocument11=" + flagDocument11 +
+            ", flagDocument12=" + flagDocument12 +
+            ", flagDocument13=" + flagDocument13 +
+            ", flagDocument14=" + flagDocument14 +
+            ", flagDocument15=" + flagDocument15 +
+            ", flagDocument16=" + flagDocument16 +
+            ", flagDocument17=" + flagDocument17 +
+            ", flagDocument18=" + flagDocument18 +
+            ", flagDocument19=" + flagDocument19 +
+            ", flagDocument20=" + flagDocument20 +
+            ", flagDocument21=" + flagDocument21 +
+            ", amtReqCreditBureauHour=" + amtReqCreditBureauHour +
+            ", amtReqCreditBureauDay=" + amtReqCreditBureauDay +
+            ", amtReqCreditBureauWeek=" + amtReqCreditBureauWeek +
+            ", amtReqCreditBureauMon=" + amtReqCreditBureauMon +
+            ", antReqCreditBureaQrt=" + antReqCreditBureaQrt +
+            ", amtReqCreditBureauYear=" + amtReqCreditBureauYear +
+            '}';
     }
 }

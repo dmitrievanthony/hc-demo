@@ -27,8 +27,10 @@ import com.gridgain.hcdemo.model.PreviousApplication;
 import com.gridgain.hcdemo.test.TestDataIterator;
 import com.gridgain.hcdemo.test.TestDataValidator;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
@@ -63,7 +65,7 @@ public class ApplicationHandler implements IgniteRunnable {
 
     private transient AggregationFieldExtractor aggregationFieldExtractor;
 
-    private transient TestDataValidator testDataValidator;
+    private static AtomicReference<TestDataValidator> testDataValidator = new AtomicReference<>();
 
     public ApplicationHandler(Application application) {
         this.application = application;
@@ -105,8 +107,124 @@ public class ApplicationHandler implements IgniteRunnable {
         model = new InfModel(ignite, "model.txt");
         fieldMapping = new FieldMapping("mapping.csv");
         fieldExtractor = new FieldExtractor(fieldMapping);
+
+        // Application field processing.
+
+        fieldExtractor.registerFieldProcessor(
+            Application.class,
+            new FieldEncoder<Application>(Application::getCodeGender, "CODE_GENDER")
+                .withEncoding("M", 0.0)
+                .withEncoding("F", 1.0)
+        );
+
+        fieldExtractor.registerFieldProcessor(
+            Application.class,
+            new FieldEncoder<Application>(Application::getFlagOwnCar, "FLAG_OWN_CAR")
+                .withEncoding("Y", 1.0)
+                .withEncoding("N", 0.0)
+        );
+
+        fieldExtractor.registerFieldProcessor(
+            Application.class,
+            new FieldEncoder<Application>(Application::getFlagOwnRealty, "FLAG_OWN_REALTY")
+                .withEncoding("Y", 0.0)
+                .withEncoding("N", 1.0)
+        );
+
+        fieldExtractor.registerFieldProcessor(Application.class, new FieldCalculator<Application>(
+            "DAYS_EMPLOYED", Application::getDaysEmployed, 365243, Double.NaN));
+
+        fieldExtractor.registerFieldProcessor(Application.class, new FieldCalculator<Application>(
+            "DAYS_EMPLOYED_PERC",
+            app -> app.getDaysEmployed() == null || app.getDaysBirth() == null ?
+                Double.NaN :
+                1.0 * app.getDaysEmployed() / app.getDaysBirth())
+        );
+
+        fieldExtractor.registerFieldProcessor(Application.class, new FieldCalculator<Application>(
+            "INCOME_CREDIT_PERC",
+            app -> app.getAmtIncomeTotal() == null || app.getAmtCredit() == null ?
+                Double.NaN :
+                1.0 * app.getAmtIncomeTotal() / app.getAmtCredit())
+        );
+
+        fieldExtractor.registerFieldProcessor(Application.class, new FieldCalculator<Application>(
+            "INCOME_PER_PERSON",
+            app -> app.getAmtIncomeTotal() == null || app.getCntFamMembers() == null ?
+                Double.NaN :
+                1.0 * app.getAmtIncomeTotal() / app.getCntFamMembers())
+        );
+
+        fieldExtractor.registerFieldProcessor(Application.class, new FieldCalculator<Application>(
+            "ANNUITY_INCOME_PERC",
+            app -> app.getAmtAnnuity() == null || app.getAmtIncomeTotal() == null ?
+                Double.NaN :
+                1.0 * app.getAmtAnnuity() / app.getAmtIncomeTotal())
+        );
+
+        fieldExtractor.registerFieldProcessor(Application.class, new FieldCalculator<Application>(
+            "PAYMENT_RATE",
+            app -> app.getAmtAnnuity() == null || app.getAmtCredit() == null ?
+                Double.NaN :
+                1.0 * app.getAmtAnnuity() / app.getAmtCredit())
+        );
+
+        // Previous application field processing.
+
+        fieldExtractor.registerFieldProcessor(PreviousApplication.class, new FieldCalculator<PreviousApplication>(
+            "DAYS_EMPLOYED", PreviousApplication::getDaysFirstDrawing, 365243, Double.NaN));
+
+        fieldExtractor.registerFieldProcessor(PreviousApplication.class, new FieldCalculator<PreviousApplication>(
+            "DAYS_FIRST_DUE", PreviousApplication::getDaysFirstDue, 365243, Double.NaN));
+
+        fieldExtractor.registerFieldProcessor(PreviousApplication.class, new FieldCalculator<PreviousApplication>(
+            "DAYS_LAST_DUE_1ST_VERSION", PreviousApplication::getDaysLastBue1stVersion, 365243, Double.NaN));
+
+        fieldExtractor.registerFieldProcessor(PreviousApplication.class, new FieldCalculator<PreviousApplication>(
+            "DAYS_LAST_DUE", PreviousApplication::getDaysLastDue, 365243, Double.NaN));
+
+        fieldExtractor.registerFieldProcessor(PreviousApplication.class, new FieldCalculator<PreviousApplication>(
+            "DAYS_TERMINATION", PreviousApplication::getDaysTermination, 365243, Double.NaN));
+
+        fieldExtractor.registerFieldProcessor(PreviousApplication.class, new FieldCalculator<PreviousApplication>(
+            "APP_CREDIT_PERC",
+            app -> app.getAmtApplication() == null || app.getAmtCredit() == null ?
+                Double.NaN :
+                1.0 * app.getAmtApplication() / app.getAmtCredit())
+        );
+
+        // Installments payments processing.
+
+        fieldExtractor.registerFieldProcessor(InstallmentPayment.class, new FieldCalculator<InstallmentPayment>(
+            "PAYMENT_PERC",
+            app -> app.getAmtPayment() == null || app.getAmtInstalment() == null ?
+                Double.NaN :
+                1.0 * app.getAmtPayment() / app.getAmtInstalment())
+        );
+
+        fieldExtractor.registerFieldProcessor(InstallmentPayment.class, new FieldCalculator<InstallmentPayment>(
+            "PAYMENT_DIFF",
+            app -> app.getAmtInstalment() == null || app.getAmtPayment() == null ?
+                Double.NaN :
+                1.0 * app.getAmtInstalment() - app.getAmtPayment())
+        );
+
+        fieldExtractor.registerFieldProcessor(InstallmentPayment.class, new FieldCalculator<InstallmentPayment>(
+            "DPD",
+            app -> app.getDaysEntryPayment() == null || app.getDaysInstalment() == null ?
+                Double.NaN :
+                Math.max(1.0 * app.getDaysEntryPayment() - app.getDaysInstalment(), 0))
+        );
+
+        fieldExtractor.registerFieldProcessor(InstallmentPayment.class, new FieldCalculator<InstallmentPayment>(
+            "DBD",
+            app -> app.getDaysInstalment() == null || app.getDaysEntryPayment() == null ?
+                Double.NaN :
+                Math.max(1.0 * app.getDaysInstalment() - app.getDaysEntryPayment(), 0))
+        );
+
         aggregationFieldExtractor = new AggregationFieldExtractor(fieldExtractor);
-        testDataValidator = new TestDataValidator("first_100_rows.csv");
+        testDataValidator.compareAndSet(null, new TestDataValidator("first_100_rows.csv"));
     }
 
     private Long inference(Application application,
@@ -118,22 +236,32 @@ public class ApplicationHandler implements IgniteRunnable {
         List<PreviousApplication> previousApplications) {
 
         Map<String, Double> values = fieldExtractor.extract(application);
-        values.putAll(aggregationFieldExtractor.extract(bureaus));
-        values.putAll(aggregationFieldExtractor.extract(bureauBalances));
-        values.putAll(aggregationFieldExtractor.extract(creditCardBalances));
-        values.putAll(aggregationFieldExtractor.extract(installmentPayments));
-        values.putAll(aggregationFieldExtractor.extract(posCashBalances));
-        values.putAll(aggregationFieldExtractor.extract(previousApplications));
+        values.putAll(aggregationFieldExtractor.extract("BURO", bureaus));
+        values.putAll(aggregationFieldExtractor.extract("BURO", bureauBalances));
+        values.putAll(aggregationFieldExtractor.extract("CC", creditCardBalances));
+        values.putAll(aggregationFieldExtractor.extract("INSTAL", installmentPayments));
+        values.putAll(aggregationFieldExtractor.extract("POS", posCashBalances));
+        values.putAll(aggregationFieldExtractor.extract("PREV", previousApplications));
 
         // Validation.
-        testDataValidator.validate(values);
+        testDataValidator.get().validate(values);
 
         Map<String, Double> vector = fieldMapping.emptyVector();
         vector.putAll(fieldMapping.map(values));
 
         double prediction = model.predict(vector);
 
-        System.out.println("Data: " + Arrays.toString(values.entrySet().toArray()) + ", prediction: " + prediction);
+        StringBuilder bldr = new StringBuilder();
+        bldr.append("Bureas: " + bureaus.size() + "\n");
+        bldr.append("Burea balances: " + bureauBalances.size() + "\n");
+        bldr.append("Credit card balances: " + creditCardBalances.size() + "\n");
+        bldr.append("Installment payments: " + installmentPayments.size() + "\n");
+        bldr.append("POS cash balances: " + posCashBalances.size() + "\n");
+        bldr.append("Previous applications: " + previousApplications.size() + "\n");
+        bldr.append("Data: " + Arrays.toString(values.entrySet().toArray()) + "\n");
+        bldr.append("Prediction: " + prediction);
+
+        System.out.println(bldr.toString());
 
         return prediction > 0.5 ? 1L : 0;
     }
