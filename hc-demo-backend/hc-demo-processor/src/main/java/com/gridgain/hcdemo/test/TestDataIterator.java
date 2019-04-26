@@ -24,18 +24,42 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestDataIterator implements AutoCloseable, Iterator<Map<String, Double>> {
+
+    private static final Logger log = LoggerFactory.getLogger(TestDataIterator.class);
+
+    private final Set<String> fieldToBeExcluded = new HashSet<String>(){{
+        add("");
+        add("index");
+    }};
 
     private final InputStream inputStream;
 
     private final MappingIterator<Map<String, String>> iterator;
 
     public TestDataIterator(String resource) {
-        inputStream = TestDataIterator.class.getClassLoader().getResourceAsStream(resource);
+        InputStream inputStream = TestDataIterator.class.getClassLoader().getResourceAsStream(resource);
+        ZipInputStream zis = new ZipInputStream(inputStream);
+        this.inputStream = new ZipInputStream(inputStream);
+
+        try {
+            ZipEntry entry = zis.getNextEntry();
+
+            log.info("Processing zip entry [entry=" + entry.getName() + "]");
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         CsvMapper mapper = new CsvMapper();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
@@ -57,6 +81,9 @@ public class TestDataIterator implements AutoCloseable, Iterator<Map<String, Dou
         for (Map.Entry<String, String> e : iterator.next().entrySet()) {
             String fieldName = e.getKey();
             String fieldValue = e.getValue();
+
+            if (fieldToBeExcluded.contains(fieldName))
+                continue;
 
             if (!fieldValue.isEmpty())
                 res.put(fieldName, Double.valueOf(fieldValue));

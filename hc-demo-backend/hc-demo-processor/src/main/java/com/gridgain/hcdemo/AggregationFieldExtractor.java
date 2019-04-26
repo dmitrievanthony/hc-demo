@@ -39,7 +39,7 @@ public class AggregationFieldExtractor {
         Map<String, List<Double>> aggregatedFields = new HashMap<>();
 
         for (Object delegate : delegates) {
-            for (Map.Entry<String, Double> field : fieldExtractor.extract(delegate).entrySet()) {
+            for (Map.Entry<String, Double> field : fieldExtractor.extract(prefix, delegate).entrySet()) {
                 String fieldName = field.getKey();
                 Double fieldValue = field.getValue();
 
@@ -60,18 +60,27 @@ public class AggregationFieldExtractor {
             String fieldName = e.getKey();
             List<Double> fieldValues = e.getValue();
 
-            res.put(prefix + "_" + fieldName + "_MIN", calculateMin(fieldValues));
-            res.put(prefix + "_" + fieldName + "_MAX", calculateMax(fieldValues));
-            res.put(prefix + "_" + fieldName + "_MEAN", calculateMean(fieldValues));
-            res.put(prefix + "_" + fieldName + "_VAR", calculateVar(fieldValues));
-            res.put(prefix + "_" + fieldName + "_MOD", calculateMod(fieldValues));
-            res.put(prefix + "_" + fieldName + "_MEDI", calculateMedi(fieldValues));
-            res.put(prefix + "_" + fieldName + "_COUNT", calculateCount(fieldValues));
-            res.put(prefix + "_" + fieldName + "_SUM", calculateSum(fieldValues));
-            res.put(prefix + "_" + fieldName + "_NUNIQUE", calculateNUnique(fieldValues));
+            res.put(withPrefixAndSuffix(prefix + "_" + fieldName, "MIN"), calculateMin(fieldValues));
+            res.put(withPrefixAndSuffix(prefix + "_" + fieldName, "MAX"), calculateMax(fieldValues));
+            res.put(withPrefixAndSuffix(prefix + "_" + fieldName, "MEAN"), calculateMean(fieldValues));
+            res.put(withPrefixAndSuffix(prefix + "_" + fieldName, "VAR"), calculateVar(fieldValues));
+            res.put(withPrefixAndSuffix(prefix + "_" + fieldName, "MOD"), calculateMod(fieldValues));
+            res.put(withPrefixAndSuffix(prefix + "_" + fieldName, "MEDI"), calculateMedi(fieldValues));
+            res.put(withPrefixAndSuffix(prefix + "_" + fieldName, "COUNT"), calculateCount(fieldValues));
+            res.put(withPrefixAndSuffix(prefix + "_" + fieldName, "SIZE"), calculateCount(fieldValues));
+            res.put(withPrefixAndSuffix(prefix + "_" + fieldName, "SUM"), calculateSum(fieldValues));
+            res.put(withPrefixAndSuffix(prefix + "_" + fieldName, "NUNIQUE"), calculateNUnique(fieldValues));
+
         }
 
         return res;
+    }
+
+    private String withPrefixAndSuffix(String fieldName, String suffix) {
+        if (fieldName.endsWith(suffix))
+            return fieldName;
+
+        return fieldName + "_" + suffix;
     }
 
     private Double calculateMod(List<Double> values) {
@@ -176,6 +185,8 @@ public class AggregationFieldExtractor {
             res += Math.pow(value - mean, 2);
         }
 
-        return res / values.size();
+
+
+        return res / Math.max(1, values.size() - 1);
     }
 }

@@ -1,4 +1,4 @@
 ignite.hosts: ignite
 com.gridgain.hcdemo.model:
-  rows-to-be-loaded: 10_000
+  rows-to-be-loaded: 200000
   batch-size: 100

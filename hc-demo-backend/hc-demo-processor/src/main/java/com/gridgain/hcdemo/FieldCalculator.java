@@ -19,6 +19,7 @@ package com.gridgain.hcdemo;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 public class FieldCalculator<T> implements Function<T, Map<String, Double>> {
@@ -32,7 +33,7 @@ public class FieldCalculator<T> implements Function<T, Map<String, Double>> {
         this.calculator = calculator;
     }
 
-    public <E> FieldCalculator(String fieldName, Function<T, E> extractor, Function<E, Double> doublerizer, E value, Double replacement) {
+    public <E> FieldCalculator(String fieldName, Function<T, E> extractor, Function<E, Double> doublerizer, E value, Double replacement, BiPredicate<E, E> equalizer) {
         this.fieldName = fieldName;
 
         this.calculator = obj -> {
@@ -41,7 +42,7 @@ public class FieldCalculator<T> implements Function<T, Map<String, Double>> {
             if (fieldValue == null)
                 return Double.NaN;
 
-            if (fieldValue.equals(value))
+            if (equalizer.test(fieldValue, value))
                 return replacement;
 
             return doublerizer.apply(fieldValue);
@@ -54,7 +55,8 @@ public class FieldCalculator<T> implements Function<T, Map<String, Double>> {
             extractor,
             e -> Double.valueOf(e.doubleValue()),
             value,
-            replacement
+            replacement,
+            (a, b) -> (a == null && b == null) || (a != null && b != null && Math.abs(a.doubleValue() - b.doubleValue()) < 1e-5)
         );
     }
 

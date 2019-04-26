@@ -27,6 +27,8 @@ public class TestDataValidator {
 
     private final TestDataIterator testDataIterator;
 
+    private Map<String, Double> lastExpected;
+
     public TestDataValidator(String resource) {
         testDataIterator = new TestDataIterator(resource);
     }
@@ -35,12 +37,19 @@ public class TestDataValidator {
         if (!testDataIterator.hasNext())
             return;
 
-        assertEquals(testDataIterator.next(), row);
+        Map<String, Double> expectedRow = lastExpected != null ? lastExpected : testDataIterator.next();
+
+        assertEquals(expectedRow, row);
     }
 
     private void assertEquals(Map<String, Double> expected, Map<String, Double> actual) {
-        Double expectedId = expected.get("SK_CURR_ID");
-        Double actualId = actual.get("SK_CURR_ID");
+        Double expectedId = expected.get("SK_ID_CURR");
+        Double actualId = actual.get("SK_ID_CURR");
+
+        lastExpected = expectedId.equals(actualId) ? null : expected;
+        if (lastExpected != null) {
+            log.warn("SK_ID_CURR doesn't match [expected=" + expectedId + ", actual=" + actualId + "]");
+        }
 
         for (String key : expected.keySet()) {
             if (!actual.containsKey(key)) {

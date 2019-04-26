@@ -83,24 +83,17 @@ public class HcDemoGeneratorApplicationEntrypoint {
         );
     }
 
-    private int count = 0;
-
     private void processBatch(Map<Long, Application> batch) {
         IgniteCompute compute = ignite.compute();
 
         long start = System.currentTimeMillis();
 
         for (Application application : batch.values()) {
-            if (count > 100)
-                return;
-
             compute.affinityRun(
                 "Application",
                 application.key(),
                 new ApplicationHandler(application)
             );
-
-            count++;
         }
 
         long end = System.currentTimeMillis();

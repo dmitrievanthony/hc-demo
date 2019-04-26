@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
@@ -93,7 +94,7 @@ public class ApplicationHandler implements IgniteRunnable {
 
         long end = System.nanoTime();
 
-        System.out.println("Time: " + (end - start) / 1_000_000.0 + "ms");
+//        System.out.println("Time: " + (end - start) / 1_000_000.0 + "ms");
     }
 
     private void initialize(Ignite ignite) {
@@ -172,19 +173,19 @@ public class ApplicationHandler implements IgniteRunnable {
         // Previous application field processing.
 
         fieldExtractor.registerFieldProcessor(PreviousApplication.class, new FieldCalculator<PreviousApplication>(
-            "DAYS_EMPLOYED", PreviousApplication::getDaysFirstDrawing, 365243, Double.NaN));
+            "DAYS_FIRST_DRAWING", PreviousApplication::getDaysFirstDrawing, 365243.0, Double.NaN));
 
         fieldExtractor.registerFieldProcessor(PreviousApplication.class, new FieldCalculator<PreviousApplication>(
-            "DAYS_FIRST_DUE", PreviousApplication::getDaysFirstDue, 365243, Double.NaN));
+            "DAYS_FIRST_DUE", PreviousApplication::getDaysFirstDue, 365243.0, Double.NaN));
 
         fieldExtractor.registerFieldProcessor(PreviousApplication.class, new FieldCalculator<PreviousApplication>(
-            "DAYS_LAST_DUE_1ST_VERSION", PreviousApplication::getDaysLastBue1stVersion, 365243, Double.NaN));
+            "DAYS_LAST_DUE_1ST_VERSION", PreviousApplication::getDaysLastBue1stVersion, 365243.0, Double.NaN));
 
         fieldExtractor.registerFieldProcessor(PreviousApplication.class, new FieldCalculator<PreviousApplication>(
-            "DAYS_LAST_DUE", PreviousApplication::getDaysLastDue, 365243, Double.NaN));
+            "DAYS_LAST_DUE", PreviousApplication::getDaysLastDue, 365243.0, Double.NaN));
 
         fieldExtractor.registerFieldProcessor(PreviousApplication.class, new FieldCalculator<PreviousApplication>(
-            "DAYS_TERMINATION", PreviousApplication::getDaysTermination, 365243, Double.NaN));
+            "DAYS_TERMINATION", PreviousApplication::getDaysTermination, 365243.0, Double.NaN));
 
         fieldExtractor.registerFieldProcessor(PreviousApplication.class, new FieldCalculator<PreviousApplication>(
             "APP_CREDIT_PERC",
@@ -224,7 +225,7 @@ public class ApplicationHandler implements IgniteRunnable {
         );
 
         aggregationFieldExtractor = new AggregationFieldExtractor(fieldExtractor);
-        testDataValidator.compareAndSet(null, new TestDataValidator("first_100_rows.csv"));
+//        testDataValidator.compareAndSet(null, new TestDataValidator("first_200000_rows.csv"));
     }
 
     private Long inference(Application application,
@@ -235,33 +236,54 @@ public class ApplicationHandler implements IgniteRunnable {
         List<POSCashBalance> posCashBalances,
         List<PreviousApplication> previousApplications) {
 
-        Map<String, Double> values = fieldExtractor.extract(application);
+        Map<String, Double> values = fieldExtractor.extract(null, application);
         values.putAll(aggregationFieldExtractor.extract("BURO", bureaus));
         values.putAll(aggregationFieldExtractor.extract("BURO", bureauBalances));
         values.putAll(aggregationFieldExtractor.extract("CC", creditCardBalances));
+        values.put("CC_COUNT", (double)creditCardBalances.size());
         values.putAll(aggregationFieldExtractor.extract("INSTAL", installmentPayments));
+        values.put("INSTAL_COUNT", (double)installmentPayments.size());
         values.putAll(aggregationFieldExtractor.extract("POS", posCashBalances));
+        values.put("POS_COUNT", (double)posCashBalances.size());
         values.putAll(aggregationFieldExtractor.extract("PREV", previousApplications));
 
+        values.putAll(aggregationFieldExtractor.extract("APPROVED", previousApplications.stream()
+            .filter(app -> "Approved".equals(app.getNameContractStatus()))
+            .collect(Collectors.toList())
+        ));
+        values.putAll(aggregationFieldExtractor.extract("REFUSED", previousApplications.stream()
+            .filter(app -> "Refused".equals(app.getNameContractStatus()))
+            .collect(Collectors.toList())
+        ));
+
+        values.putAll(aggregationFieldExtractor.extract("CLOSED", bureaus.stream()
+            .filter(bb -> "Closed".equals(bb.getCreditActive()))
+            .collect(Collectors.toList())
+        ));
+        values.putAll(aggregationFieldExtractor.extract("ACTIVE", bureaus.stream()
+            .filter(bb -> "Active".equals(bb.getCreditActive()))
+            .collect(Collectors.toList())
+        ));
+
         // Validation.
-        testDataValidator.get().validate(values);
+//        testDataValidator.get().validate(values);
 
         Map<String, Double> vector = fieldMapping.emptyVector();
         vector.putAll(fieldMapping.map(values));
 
         double prediction = model.predict(vector);
 
-        StringBuilder bldr = new StringBuilder();
-        bldr.append("Bureas: " + bureaus.size() + "\n");
-        bldr.append("Burea balances: " + bureauBalances.size() + "\n");
-        bldr.append("Credit card balances: " + creditCardBalances.size() + "\n");
-        bldr.append("Installment payments: " + installmentPayments.size() + "\n");
-        bldr.append("POS cash balances: " + posCashBalances.size() + "\n");
-        bldr.append("Previous applications: " + previousApplications.size() + "\n");
-        bldr.append("Data: " + Arrays.toString(values.entrySet().toArray()) + "\n");
-        bldr.append("Prediction: " + prediction);
-
-        System.out.println(bldr.toString());
+//        StringBuilder bldr = new StringBuilder();
+//        bldr.append("Bureas: " + bureaus.size() + "\n");
+//        bldr.append("Burea balances: " + bureauBalances.size() + "\n");
+//        bldr.append("Credit card balances: " + creditCardBalances.size() + "\n");
+//        bldr.append("Installment payments: " + installmentPayments.size() + "\n");
+//        bldr.append("POS cash balances: " + posCashBalances.size() + "\n");
+//        bldr.append("Previous applications: " + previousApplications.size() + "\n");
+//        bldr.append("Data: " + Arrays.toString(values.entrySet().toArray()) + "\n");
+//        bldr.append("Prediction: " + prediction);
+//
+//        System.out.println(bldr.toString());
 
         return prediction > 0.5 ? 1L : 0;
     }

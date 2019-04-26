@@ -38,7 +38,7 @@ public class FieldExtractor {
         this.processors = new HashMap<>();
     }
 
-    public Map<String, Double> extract(Object delegate) {
+    public Map<String, Double> extract(String prefix, Object delegate) {
         Map<String, Double> res = new HashMap<>();
 
         for (Map.Entry<String, FieldTypeWithValue> field : getFields(delegate).entrySet()) {
@@ -49,7 +49,7 @@ public class FieldExtractor {
                 handleNumberField(fieldName, (Number)fieldValue.value, res);
             }
             else if (String.class.isAssignableFrom(fieldValue.clazz)) {
-                handleStringField(fieldName, (String)fieldValue.value, res);
+                handleStringField(prefix, fieldName, (String)fieldValue.value, res);
             }
             else {
                 throw new IllegalStateException("Field should be Number or String [name=" + fieldName + ", class=" + fieldValue.clazz + ", value=" + fieldValue.value + "]");
@@ -77,15 +77,21 @@ public class FieldExtractor {
         res.put(fieldName, fieldValue == null ? Double.NaN : fieldValue.doubleValue());
     }
 
-    private void handleStringField(String fieldName, String fieldValue, Map<String, Double> res) {
+    private void handleStringField(String prefix, String fieldName, String fieldValue, Map<String, Double> res) {
         for (String name : fieldMapping.keys()) {
-            if (name.startsWith(fieldName))
-                res.put(name, 0.0);
-        }
-
-        if (fieldValue != null) {
-            fieldName = fieldName + "_" + fieldValue;
-            res.put(fieldName, 1.0);
+            if (name.startsWith((prefix == null ? "" : prefix + "_") + fieldName)) {
+                double val;
+                if (fieldValue != null && !fieldValue.isEmpty() &&
+                    (name.startsWith((prefix == null ? "" : prefix + "_") + fieldName + "_" + fieldValue + "_") ||
+                        name.equals((prefix == null ? "" : prefix + "_") + fieldName + "_" + fieldValue)
+                    )) {
+                    val = 1;
+                }
+                else {
+                    val = 0;
+                }
+                res.put(prefix == null ? name : name.substring(prefix.length() + 1), val);
+            }
         }
     }
 
