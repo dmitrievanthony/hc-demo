@@ -77,13 +77,13 @@ public class HcDemoIgniteServerConfiguration {
 
     @Bean
     @Profile("kubernetes")
-    public TcpDiscoveryIpFinder ipFinder() {
+    public TcpDiscoveryIpFinder ipFinderKubernetes() {
         return new TcpDiscoveryKubernetesIpFinder();
     }
 
     @Bean
     @Profile("!kubernetes")
-    public TcpDiscoveryIpFinder ipFinder(
+    public TcpDiscoveryIpFinder ipFinderLocal(
         @Value("#{'${com.gridgain.hcdemo.local.ignite.hosts}'.split(',')}") List<String> addresses) {
         TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
 
@@ -94,7 +94,7 @@ public class HcDemoIgniteServerConfiguration {
 
     @Bean
     public IgniteCache<Long, Application> applicationCache(Ignite ignite,
-        @Value("com.gridgain.hcdemo.model.backups") int backups) {
+        @Value("${com.gridgain.hcdemo.model.backups}") int backups) {
         CacheConfiguration<Long, Application> cc = new CacheConfiguration<>();
 
         cc.setName("Application");
@@ -106,7 +106,7 @@ public class HcDemoIgniteServerConfiguration {
 
     @Bean
     public IgniteCache<AffinityKey<Long>, Bureau> bureauCache(Ignite ignite,
-        @Value("com.gridgain.hcdemo.model.backups") int backups) {
+        @Value("${com.gridgain.hcdemo.model.backups}") int backups) {
         CacheConfiguration<AffinityKey<Long>, Bureau> cc = new CacheConfiguration<>();
 
         cc.setName("Bureau");
@@ -118,7 +118,7 @@ public class HcDemoIgniteServerConfiguration {
 
     @Bean
     public IgniteCache<AffinityKey<Long>, BureauBalance> bureauBalanceCache(Ignite ignite,
-        @Value("com.gridgain.hcdemo.model.backups") int backups) {
+        @Value("${com.gridgain.hcdemo.model.backups}") int backups) {
         CacheConfiguration<AffinityKey<Long>, BureauBalance> cc = new CacheConfiguration<>();
 
         cc.setName("BureauBalance");
@@ -130,7 +130,7 @@ public class HcDemoIgniteServerConfiguration {
 
     @Bean
     public IgniteCache<AffinityKey<Long>, CreditCardBalance> creditCardBalanceCache(Ignite ignite,
-        @Value("com.gridgain.hcdemo.model.backups") int backups) {
+        @Value("${com.gridgain.hcdemo.model.backups}") int backups) {
         CacheConfiguration<AffinityKey<Long>, CreditCardBalance> cc = new CacheConfiguration<>();
 
         cc.setName("CreditCardBalance");
@@ -142,7 +142,7 @@ public class HcDemoIgniteServerConfiguration {
 
     @Bean
     public IgniteCache<AffinityKey<Long>, InstallmentPayment> installmentPaymentCache(Ignite ignite,
-        @Value("com.gridgain.hcdemo.model.backups") int backups) {
+        @Value("${com.gridgain.hcdemo.model.backups}") int backups) {
         CacheConfiguration<AffinityKey<Long>, InstallmentPayment> cc = new CacheConfiguration<>();
 
         cc.setName("InstallmentPayment");
@@ -154,7 +154,7 @@ public class HcDemoIgniteServerConfiguration {
 
     @Bean
     public IgniteCache<AffinityKey<Long>, POSCashBalance> posCashBalanceCache(Ignite ignite,
-        @Value("com.gridgain.hcdemo.model.backups") int backups) {
+        @Value("${com.gridgain.hcdemo.model.backups}") int backups) {
         CacheConfiguration<AffinityKey<Long>, POSCashBalance> cc = new CacheConfiguration<>();
 
         cc.setName("POSCashBalance");
@@ -166,7 +166,7 @@ public class HcDemoIgniteServerConfiguration {
 
     @Bean
     public IgniteCache<AffinityKey<Long>, PreviousApplication> previousApplicationCache(Ignite ignite,
-        @Value("com.gridgain.hcdemo.model.backups") int backups) {
+        @Value("${com.gridgain.hcdemo.model.backups}") int backups) {
         CacheConfiguration<AffinityKey<Long>, PreviousApplication> cc = new CacheConfiguration<>();
 
         cc.setName("PreviousApplication");

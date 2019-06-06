@@ -16,6 +16,13 @@ services:
         build: hc-demo-backend/hc-demo-generator
         links:
             - ignite
+            - metrics
 
     ignite:
         build: hc-demo-backend/hc-demo-ignite-server
+
+    metrics:
+        image: philhawthorne/docker-influxdb-grafana
+        ports:
+            - '3003:3003'
+            - '8086:8086'

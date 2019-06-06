@@ -1,5 +1,5 @@
 com.gridgain.hcdemo:
-  local.hosts: ignite
+  local.ignite.hosts: ignite
   model:
     rows-to-be-loaded: 200000
     batch-size: 200

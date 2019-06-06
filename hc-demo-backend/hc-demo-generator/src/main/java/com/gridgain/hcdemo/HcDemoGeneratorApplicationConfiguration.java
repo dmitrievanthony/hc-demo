@@ -77,13 +77,13 @@ public class HcDemoGeneratorApplicationConfiguration {
 
     @Bean
     @Profile("kubernetes")
-    public TcpDiscoveryIpFinder ipFinder() {
+    public TcpDiscoveryIpFinder ipFinderKubernetes() {
         return new TcpDiscoveryKubernetesIpFinder();
     }
 
     @Bean
     @Profile("!kubernetes")
-    public TcpDiscoveryIpFinder ipFinder(
+    public TcpDiscoveryIpFinder ipFinderLocal(
         @Value("#{'${com.gridgain.hcdemo.local.ignite.hosts}'.split(',')}") List<String> addresses) {
         TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
 
@@ -93,10 +93,10 @@ public class HcDemoGeneratorApplicationConfiguration {
     }
 
     @Bean
-    public InfluxDB influxDB(@Value("com.gridgain.hcdemo.influx.url") String influxUrl,
-        @Value("com.gridgain.hcdemo.influx.username") String influxUsername,
-        @Value("com.gridgain.hcdemo.influx.password") String influxPassword,
-        @Value("com.gridgain.hcdemo.influx.database") String influxDatabase) {
+    public InfluxDB influxDB(@Value("${com.gridgain.hcdemo.influx.url}") String influxUrl,
+        @Value("${com.gridgain.hcdemo.influx.username}") String influxUsername,
+        @Value("${com.gridgain.hcdemo.influx.password}") String influxPassword,
+        @Value("${com.gridgain.hcdemo.influx.database}") String influxDatabase) {
         InfluxDB influxDB = InfluxDBFactory.connect(influxUrl, influxUsername, influxPassword);
         influxDB.query(new Query("CREATE DATABASE " + influxDatabase));
         influxDB.setDatabase(influxDatabase);

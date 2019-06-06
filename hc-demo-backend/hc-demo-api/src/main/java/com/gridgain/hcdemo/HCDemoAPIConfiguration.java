@@ -108,13 +108,13 @@ public class HCDemoAPIConfiguration {
 
     @Bean
     @Profile("kubernetes")
-    public TcpDiscoveryIpFinder ipFinder() {
+    public TcpDiscoveryIpFinder ipFinderKubernetes() {
         return new TcpDiscoveryKubernetesIpFinder();
     }
 
     @Bean
     @Profile("!kubernetes")
-    public TcpDiscoveryIpFinder ipFinder(@Value("#{'${com.gridgain.hcdemo.local.ignite.hosts}'.split(',')}") List<String> addresses) {
+    public TcpDiscoveryIpFinder ipFinderLocal(@Value("#{'${com.gridgain.hcdemo.local.ignite.hosts}'.split(',')}") List<String> addresses) {
         TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
 
         ipFinder.setAddresses(addresses);
