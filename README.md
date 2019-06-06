@@ -50,7 +50,7 @@ npm install
 npm run build
 ```
 
-It's also possible to use [Docker](https://www.docker.com/) to build frontend. You can make it using following instruction:
+It's also possible to use [Docker](https://www.docker.com/) to build frontend. You can make it using following instructions:
 
 ```
 cd hc-demo-frontend
