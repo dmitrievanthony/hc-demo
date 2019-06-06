@@ -83,7 +83,9 @@ docker-compose up
 
 ### Kubernetes
 
-TBD
+This repository contains *hc-demo-kubernetes.yaml* Kubernetes deployment file. If you have a running Kubernetes cluster it's enough to call `kubectl apply -f hc-demo-kuberneres.yaml` to deploy the demo into cluster.
+
+If you don't have a running Kubernetes cluster yet the following instruction will help you to set it up.
 
 ## Benchmarks
 
