@@ -1,4 +1,10 @@
-ignite.hosts: ignite
-com.gridgain.hcdemo.model:
-  rows-to-be-loaded: 200000
-  batch-size: 100
+com.gridgain.hcdemo:
+  local.hosts: ignite
+  model:
+    rows-to-be-loaded: 200000
+    batch-size: 200
+  influx:
+    url: 'http://metrics:8086'
+    username: root
+    password: root
+    database: metrics

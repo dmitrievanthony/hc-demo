@@ -34,10 +34,15 @@ import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.spi.discovery.DiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.TcpDiscoveryIpFinder;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.kubernetes.TcpDiscoveryKubernetesIpFinder;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
 public class HCDemoAPIConfiguration {
@@ -102,7 +107,14 @@ public class HCDemoAPIConfiguration {
     }
 
     @Bean
-    public TcpDiscoveryIpFinder ipFinder(@Value("#{'${ignite.hosts}'.split(',')}") List<String> addresses) {
+    @Profile("kubernetes")
+    public TcpDiscoveryIpFinder ipFinder() {
+        return new TcpDiscoveryKubernetesIpFinder();
+    }
+
+    @Bean
+    @Profile("!kubernetes")
+    public TcpDiscoveryIpFinder ipFinder(@Value("#{'${com.gridgain.hcdemo.local.ignite.hosts}'.split(',')}") List<String> addresses) {
         TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
 
         ipFinder.setAddresses(addresses);

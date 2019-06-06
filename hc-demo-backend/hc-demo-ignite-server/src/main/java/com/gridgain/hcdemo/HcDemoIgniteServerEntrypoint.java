@@ -31,6 +31,7 @@ import com.gridgain.hcdemo.preprocessor.POSCashBalancePreprocessor;
 import com.gridgain.hcdemo.preprocessor.PreviousApplicationPreprocessor;
 import java.io.IOException;
 import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteAtomicLong;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteQueue;
 import org.apache.ignite.cache.affinity.AffinityKey;
@@ -43,8 +44,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class HcDemoIgniteServerEntrypoint {
-
-    private static final Logger log = LoggerFactory.getLogger(HcDemoIgniteServerEntrypoint.class);
 
     @Autowired
     private Ignite ignite;
@@ -94,76 +93,80 @@ public class HcDemoIgniteServerEntrypoint {
     public void onApplicationEvent(ContextRefreshedEvent event) throws IOException {
         messageQueue = MessageQueue.get(ignite);
 
-        dataLoader.loadCSV(
-            new String[] {
-                "data/bureau00.csv.zip",
-                "data/bureau01.csv.zip"
-            },
-            Bureau.class,
-            bureauPreprocessor,
-            bureauCache
-        );
+        IgniteAtomicLong flag = ignite.atomicLong("ReferenceDataFlag", 0, true);
 
-        dataLoader.loadCSV(
-            new String[] {
-                "data/bureau_balance00.csv.zip",
-                "data/bureau_balance01.csv.zip",
-                "data/bureau_balance02.csv.zip",
-                "data/bureau_balance03.csv.zip"
-            },
-            BureauBalance.class,
-            bureauBalancePreprocessor,
-            bureauBalanceCache
-        );
+        if (flag.compareAndSet(0, 1)) {
+            dataLoader.loadCSV(
+                new String[] {
+                    "data/bureau00.csv.zip",
+                    "data/bureau01.csv.zip"
+                },
+                Bureau.class,
+                bureauPreprocessor,
+                bureauCache
+            );
 
-        dataLoader.loadCSV(
-            new String[] {
-                "data/credit_card_balance00.csv.zip",
-                "data/credit_card_balance01.csv.zip",
-                "data/credit_card_balance02.csv.zip",
-                "data/credit_card_balance03.csv.zip"
-            },
-            CreditCardBalance.class,
-            creditCardBalancePreprocessor,
-            creditCardBalanceCache
-        );
+            dataLoader.loadCSV(
+                new String[] {
+                    "data/bureau_balance00.csv.zip",
+                    "data/bureau_balance01.csv.zip",
+                    "data/bureau_balance02.csv.zip",
+                    "data/bureau_balance03.csv.zip"
+                },
+                BureauBalance.class,
+                bureauBalancePreprocessor,
+                bureauBalanceCache
+            );
 
-        dataLoader.loadCSV(
-            new String[] {
-                "data/installments_payments00.csv.zip",
-                "data/installments_payments00.csv.zip",
-                "data/installments_payments00.csv.zip",
-                "data/installments_payments00.csv.zip",
-                "data/installments_payments00.csv.zip"
-            },
-            InstallmentPayment.class,
-            installmentPaymentPreprocessor,
-            installmentPaymentCache
-        );
+            dataLoader.loadCSV(
+                new String[] {
+                    "data/credit_card_balance00.csv.zip",
+                    "data/credit_card_balance01.csv.zip",
+                    "data/credit_card_balance02.csv.zip",
+                    "data/credit_card_balance03.csv.zip"
+                },
+                CreditCardBalance.class,
+                creditCardBalancePreprocessor,
+                creditCardBalanceCache
+            );
 
-        dataLoader.loadCSV(
-            new String[] {
-                "data/POS_CASH_balance00.csv.zip",
-                "data/POS_CASH_balance01.csv.zip",
-                "data/POS_CASH_balance02.csv.zip",
-                "data/POS_CASH_balance03.csv.zip"
-            },
-            POSCashBalance.class,
-            posCashBalancePreprocessor,
-            posCashBalanceCache
-        );
+            dataLoader.loadCSV(
+                new String[] {
+                    "data/installments_payments00.csv.zip",
+                    "data/installments_payments00.csv.zip",
+                    "data/installments_payments00.csv.zip",
+                    "data/installments_payments00.csv.zip",
+                    "data/installments_payments00.csv.zip"
+                },
+                InstallmentPayment.class,
+                installmentPaymentPreprocessor,
+                installmentPaymentCache
+            );
 
-        dataLoader.loadCSV(
-            new String[] {
-                "data/previous_application00.csv.zip",
-                "data/previous_application01.csv.zip",
-                "data/previous_application02.csv.zip"
-            },
-            PreviousApplication.class,
-            previousApplicationPreprocessor,
-            previousApplicationCache
-        );
+            dataLoader.loadCSV(
+                new String[] {
+                    "data/POS_CASH_balance00.csv.zip",
+                    "data/POS_CASH_balance01.csv.zip",
+                    "data/POS_CASH_balance02.csv.zip",
+                    "data/POS_CASH_balance03.csv.zip"
+                },
+                POSCashBalance.class,
+                posCashBalancePreprocessor,
+                posCashBalanceCache
+            );
 
-        messageQueue.put(MessageQueue.START_MSG);
+            dataLoader.loadCSV(
+                new String[] {
+                    "data/previous_application00.csv.zip",
+                    "data/previous_application01.csv.zip",
+                    "data/previous_application02.csv.zip"
+                },
+                PreviousApplication.class,
+                previousApplicationPreprocessor,
+                previousApplicationCache
+            );
+
+            messageQueue.put(MessageQueue.START_MSG);
+        }
     }
 }

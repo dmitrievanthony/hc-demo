@@ -1,0 +1,260 @@
+apiVersion: v1
+items:
+
+# Service account required by TcpDiscoveryKubernetesIpFinder.
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: ignite
+    namespace: default
+
+# Cluster role required by TcpDiscoveryKubernetesIpFinder.
+- apiVersion: rbac.authorization.k8s.io/v1beta1
+  kind: ClusterRole
+  metadata:
+    name: ignite
+    namespace: default
+  rules:
+  - apiGroups:
+    - ""
+    resources:
+    - pods
+    - endpoints
+    verbs:
+    - get
+    - list
+    - watch
+
+# Cluster role binding required by TcpDiscoveryKubernetesIpFinder.
+- apiVersion: rbac.authorization.k8s.io/v1beta1
+  kind: ClusterRoleBinding
+  apiVersion: rbac.authorization.k8s.io/v1beta1
+  metadata:
+    name: ignite
+  roleRef:
+    kind: ClusterRole
+    name: ignite
+    apiGroup: rbac.authorization.k8s.io
+  subjects:
+  - kind: ServiceAccount
+    name: ignite
+    namespace: default
+
+# API service.
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: api
+  spec:
+    ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+    selector:
+      io.kompose.service: api
+  status:
+    loadBalancer: {}
+
+# Frontend service.
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: frontend
+  spec:
+    ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 80
+    selector:
+      io.kompose.service: frontend
+    type: LoadBalancer
+  status:
+    loadBalancer: {}
+
+# Ignite server service.
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ignite
+  spec:
+    ports:
+    - name: "11211"
+      port: 11211
+      targetPort: 11211
+    - name: "47100"
+      port: 47100
+      targetPort: 47100
+    - name: "47500"
+      port: 47500
+      targetPort: 47500
+    - name: "49112"
+      port: 49112
+      targetPort: 49112
+    selector:
+      io.kompose.service: ignite
+  status:
+    loadBalancer: {}
+
+# Metrics service (InfluxDB + Grafana).
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: metrics
+  spec:
+    ports:
+    - name: "3003"
+      port: 3003
+      targetPort: 3003
+    - name: "8086"
+      port: 8086
+      targetPort: 8086
+    selector:
+      io.kompose.service: metrics
+    type: LoadBalancer
+  status:
+    loadBalancer: {}
+
+# API deployment.
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: api
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: api
+      spec:
+        serviceAccountName: ignite
+        containers:
+        - env:
+          - name: GET_HOSTS_FROM
+            value: dns
+          - name: SPRING_PROFILES_ACTIVE
+            value: kubernetes
+          image: dmitrievanthony/hc-demo-api
+          name: api
+          ports:
+          - containerPort: 8080
+          resources: {}
+        restartPolicy: Always
+  status: {}
+
+# Frontend deployment.
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: frontend
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: frontend
+      spec:
+        containers:
+        - env:
+          - name: GET_HOSTS_FROM
+            value: dns
+          image: dmitrievanthony/hc-demo-frontend
+          name: frontend
+          ports:
+          - containerPort: 80
+          resources: {}
+        restartPolicy: Always
+  status: {}
+
+# Generator deployment.
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: generator
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: generator
+      spec:
+        serviceAccountName: ignite
+        containers:
+        - env:
+          - name: GET_HOSTS_FROM
+            value: dns
+          - name: SPRING_PROFILES_ACTIVE
+            value: kubernetes
+          image: dmitrievanthony/hc-demo-generator
+          name: generator
+          resources: {}
+        restartPolicy: Always
+  status: {}
+
+# Ignite server deployment.
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: ignite
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: ignite
+      spec:
+        serviceAccountName: ignite
+        containers:
+        - env:
+          - name: GET_HOSTS_FROM
+            value: dns
+          - name: SPRING_PROFILES_ACTIVE
+            value: kubernetes
+          image: dmitrievanthony/hc-demo-ignite-server
+          name: ignite
+          ports:
+          - containerPort: 11211
+          - containerPort: 47100
+          - containerPort: 47500
+          - containerPort: 49112
+          resources: {}
+        restartPolicy: Always
+  status: {}
+
+# Metrics deployment (InfluxDB + Grafana).
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: metrics
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: metrics
+      spec:
+        containers:
+        - env:
+          - name: GET_HOSTS_FROM
+            value: dns
+          image: philhawthorne/docker-influxdb-grafana
+          name: metrics
+          ports:
+          - containerPort: 3003
+          - containerPort: 8086
+          resources: {}
+        restartPolicy: Always
+  status: {}
+
+kind: List
+metadata: {}
+

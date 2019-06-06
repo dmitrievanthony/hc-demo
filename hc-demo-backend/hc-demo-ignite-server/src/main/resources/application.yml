@@ -1,3 +1,4 @@
 com.gridgain.hcdemo.model:
-  rows-to-be-loaded: 200000
-  batch-size: 100000
+    rows-to-be-loaded: 200000
+    batch-size: 100000
+    backups: 2

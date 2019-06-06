@@ -60,19 +60,14 @@
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-ml</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.ignite</groupId>-->
-            <!--<artifactId>ignite-slf4j</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-ml-xgboost-model-parser</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.gridgain</groupId>-->
-            <!--<artifactId>hc-demo-processor</artifactId>-->
-            <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-kubernetes</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

@@ -25,6 +25,7 @@ import com.gridgain.hcdemo.model.InstallmentPayment;
 import com.gridgain.hcdemo.model.POSCashBalance;
 import com.gridgain.hcdemo.model.PreviousApplication;
 import java.util.Arrays;
+import java.util.List;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
@@ -35,9 +36,16 @@ import org.apache.ignite.configuration.DataRegionConfiguration;
 import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.TcpDiscoveryIpFinder;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.kubernetes.TcpDiscoveryKubernetesIpFinder;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
 public class HcDemoIgniteServerConfiguration {
@@ -48,7 +56,7 @@ public class HcDemoIgniteServerConfiguration {
     }
 
     @Bean
-    public IgniteConfiguration configuration() {
+    public IgniteConfiguration configuration(TcpDiscoveryIpFinder ipFinder) {
         IgniteConfiguration configuration = new IgniteConfiguration();
 
         DataStorageConfiguration dsc = new DataStorageConfiguration();
@@ -57,10 +65,6 @@ public class HcDemoIgniteServerConfiguration {
 
         dsc.setDefaultDataRegionConfiguration(drc);
         configuration.setDataStorageConfiguration(dsc);
-
-
-        TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
-        ipFinder.setAddresses(Arrays.asList("localhost"));
 
         TcpDiscoverySpi discovery = new TcpDiscoverySpi();
         discovery.setIpFinder(ipFinder);
@@ -72,65 +76,103 @@ public class HcDemoIgniteServerConfiguration {
     }
 
     @Bean
-    public IgniteCache<Long, Application> applicationCache(Ignite ignite) {
+    @Profile("kubernetes")
+    public TcpDiscoveryIpFinder ipFinder() {
+        return new TcpDiscoveryKubernetesIpFinder();
+    }
+
+    @Bean
+    @Profile("!kubernetes")
+    public TcpDiscoveryIpFinder ipFinder(
+        @Value("#{'${com.gridgain.hcdemo.local.ignite.hosts}'.split(',')}") List<String> addresses) {
+        TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
+
+        ipFinder.setAddresses(addresses);
+
+        return ipFinder;
+    }
+
+    @Bean
+    public IgniteCache<Long, Application> applicationCache(Ignite ignite,
+        @Value("com.gridgain.hcdemo.model.backups") int backups) {
         CacheConfiguration<Long, Application> cc = new CacheConfiguration<>();
+
         cc.setName("Application");
         cc.setIndexedTypes(Long.class, Application.class);
+        cc.setBackups(backups);
 
-        return ignite.createCache(cc);
+        return ignite.getOrCreateCache(cc);
     }
 
     @Bean
-    public IgniteCache<AffinityKey<Long>, Bureau> bureauCache(Ignite ignite) {
+    public IgniteCache<AffinityKey<Long>, Bureau> bureauCache(Ignite ignite,
+        @Value("com.gridgain.hcdemo.model.backups") int backups) {
         CacheConfiguration<AffinityKey<Long>, Bureau> cc = new CacheConfiguration<>();
+
         cc.setName("Bureau");
         cc.setIndexedTypes(AffinityKey.class, Bureau.class);
+        cc.setBackups(backups);
 
-        return ignite.createCache(cc);
+        return ignite.getOrCreateCache(cc);
     }
 
     @Bean
-    public IgniteCache<AffinityKey<Long>, BureauBalance> bureauBalanceCache(Ignite ignite) {
+    public IgniteCache<AffinityKey<Long>, BureauBalance> bureauBalanceCache(Ignite ignite,
+        @Value("com.gridgain.hcdemo.model.backups") int backups) {
         CacheConfiguration<AffinityKey<Long>, BureauBalance> cc = new CacheConfiguration<>();
+
         cc.setName("BureauBalance");
         cc.setIndexedTypes(AffinityKey.class, BureauBalance.class);
+        cc.setBackups(backups);
 
-        return ignite.createCache(cc);
+        return ignite.getOrCreateCache(cc);
     }
 
     @Bean
-    public IgniteCache<AffinityKey<Long>, CreditCardBalance> creditCardBalanceCache(Ignite ignite) {
+    public IgniteCache<AffinityKey<Long>, CreditCardBalance> creditCardBalanceCache(Ignite ignite,
+        @Value("com.gridgain.hcdemo.model.backups") int backups) {
         CacheConfiguration<AffinityKey<Long>, CreditCardBalance> cc = new CacheConfiguration<>();
+
         cc.setName("CreditCardBalance");
         cc.setIndexedTypes(AffinityKey.class, CreditCardBalance.class);
+        cc.setBackups(backups);
 
-        return ignite.createCache(cc);
+        return ignite.getOrCreateCache(cc);
     }
 
     @Bean
-    public IgniteCache<AffinityKey<Long>, InstallmentPayment> installmentPaymentCache(Ignite ignite) {
+    public IgniteCache<AffinityKey<Long>, InstallmentPayment> installmentPaymentCache(Ignite ignite,
+        @Value("com.gridgain.hcdemo.model.backups") int backups) {
         CacheConfiguration<AffinityKey<Long>, InstallmentPayment> cc = new CacheConfiguration<>();
+
         cc.setName("InstallmentPayment");
         cc.setIndexedTypes(AffinityKey.class, InstallmentPayment.class);
+        cc.setBackups(backups);
 
-        return ignite.createCache(cc);
+        return ignite.getOrCreateCache(cc);
     }
 
     @Bean
-    public IgniteCache<AffinityKey<Long>, POSCashBalance> posCashBalanceCache(Ignite ignite) {
+    public IgniteCache<AffinityKey<Long>, POSCashBalance> posCashBalanceCache(Ignite ignite,
+        @Value("com.gridgain.hcdemo.model.backups") int backups) {
         CacheConfiguration<AffinityKey<Long>, POSCashBalance> cc = new CacheConfiguration<>();
+
         cc.setName("POSCashBalance");
         cc.setIndexedTypes(AffinityKey.class, POSCashBalance.class);
+        cc.setBackups(backups);
 
-        return ignite.createCache(cc);
+        return ignite.getOrCreateCache(cc);
     }
 
     @Bean
-    public IgniteCache<AffinityKey<Long>, PreviousApplication> previousApplicationCache(Ignite ignite) {
+    public IgniteCache<AffinityKey<Long>, PreviousApplication> previousApplicationCache(Ignite ignite,
+        @Value("com.gridgain.hcdemo.model.backups") int backups) {
         CacheConfiguration<AffinityKey<Long>, PreviousApplication> cc = new CacheConfiguration<>();
+
         cc.setName("PreviousApplication");
         cc.setIndexedTypes(AffinityKey.class, PreviousApplication.class);
+        cc.setBackups(backups);
 
-        return ignite.createCache(cc);
+        return ignite.getOrCreateCache(cc);
     }
 }

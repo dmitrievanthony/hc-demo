@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -41,9 +42,15 @@ import org.apache.ignite.IgniteCompute;
 import org.apache.ignite.IgniteQueue;
 import org.apache.ignite.binary.BinaryObject;
 import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.lang.IgniteFuture;
+import org.influxdb.InfluxDB;
+import org.influxdb.dto.Point;
+import org.influxdb.dto.Query;
+import org.influxdb.dto.QueryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -56,6 +63,10 @@ public class HcDemoGeneratorApplicationEntrypoint {
 
     private static final Logger log = LoggerFactory.getLogger(HcDemoGeneratorApplicationEntrypoint.class);
 
+    private static final String INFERENCE_TABLE_NAME = "inference";
+
+    private static final String THROUGHPUT_FIELD_NAME = "throughput";
+
     @Autowired
     private Ignite ignite;
 
@@ -65,6 +76,9 @@ public class HcDemoGeneratorApplicationEntrypoint {
     @Autowired
     private ApplicationPreprocessor applicationPreprocessor;
 
+    @Autowired
+    private InfluxDB influxDB;
+
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) throws IOException {
         IgniteQueue<String> msgQueue = MessageQueue.get(ignite);
@@ -72,15 +86,17 @@ public class HcDemoGeneratorApplicationEntrypoint {
         if(!msg.equals(MessageQueue.START_MSG))
             throw new RuntimeException("Illegal message: " + msg);
 
-        dataLoader.loadCSV(
-            new String[]{
-                "data/application_train00.csv.zip",
-                "data/application_train01.csv.zip"
-            },
-            Application.class,
-            applicationPreprocessor,
-            this::processBatch
-        );
+        while (true) {
+            dataLoader.loadCSV(
+                new String[]{
+                    "data/application_train00.csv.zip",
+                    "data/application_train01.csv.zip"
+                },
+                Application.class,
+                applicationPreprocessor,
+                this::processBatch
+            );
+        }
     }
 
     private void processBatch(Map<Long, Application> batch) {
@@ -88,15 +104,29 @@ public class HcDemoGeneratorApplicationEntrypoint {
 
         long start = System.currentTimeMillis();
 
+        List<IgniteFuture<Void>> futures = new ArrayList<>();
         for (Application application : batch.values()) {
-            compute.affinityRun(
+            if ("XNA".equals(application.getCodeGender()))
+                continue;
+
+            IgniteFuture<Void> future = compute.affinityRunAsync(
                 "Application",
                 application.key(),
                 new ApplicationHandler(application)
             );
+
+            futures.add(future);
         }
 
+        for (IgniteFuture<Void> future : futures)
+            future.get();
+
         long end = System.currentTimeMillis();
+
+        influxDB.write(Point.measurement(INFERENCE_TABLE_NAME)
+            .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+            .addField(THROUGHPUT_FIELD_NAME, 1000.0 * batch.size() / (end - start))
+            .build());
 
         log.info("Application batch processed [throughput=" + 1000.0 * batch.size() / (end - start) + "ops/sec]");
     }

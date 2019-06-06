@@ -31,57 +31,25 @@ import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.spi.discovery.DiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.TcpDiscoveryIpFinder;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.kubernetes.TcpDiscoveryKubernetesIpFinder;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
+import org.influxdb.BatchOptions;
+import org.influxdb.InfluxDB;
+import org.influxdb.InfluxDBFactory;
+import org.influxdb.dto.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import sun.misc.IOUtils;
 
 @Configuration
 public class HcDemoGeneratorApplicationConfiguration {
-
-    private static final Logger log = LoggerFactory.getLogger(HcDemoGeneratorApplicationConfiguration.class);
-
-//    @Bean(destroyMethod = "close")
-//    public Model<NamedVector, Future<Double>> model(AsyncModelBuilder modelBuilder, ModelReader reader, XGModelParser parser) {
-//        return modelBuilder.build(reader, parser);
-//    }
-//
-//    @Bean
-//    public AsyncModelBuilder asyncModelBuilder(Ignite ignite, @Value("${inference.instances:4}") int instances) {
-//        return new IgniteDistributedModelBuilder(ignite, instances, instances);
-//    }
-//
-//    @Bean
-//    public ModelReader modelReader(ModelStorage modelStorage, @Value("${inference.model:model.txt}") String modelResource) {
-//        try (InputStream is = HcDemoGeneratorApplicationConfiguration.class.getClassLoader().getResourceAsStream(modelResource)) {
-//            byte[] model = IOUtils.readFully(is, -1, false);
-//
-//            String path = "/hc/model.txt";
-//
-//            modelStorage.mkdirs("/hc");
-//            modelStorage.putFile(path, model);
-//
-//            log.debug("Model saved into model storage [path=" + path + "]");
-//
-//            return new ModelStorageModelReader(path);
-//        }
-//        catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    @Bean
-//    public XGModelParser modelParser() {
-//        return new XGModelParser();
-//    }
-//
-//    @Bean
-//    public ModelStorage modelStorage(Ignite ignite) {
-//        return new ModelStorageFactory().getModelStorage(ignite);
-//    }
 
     @Bean(destroyMethod = "close")
     public Ignite ignite(IgniteConfiguration config) {
@@ -98,16 +66,6 @@ public class HcDemoGeneratorApplicationConfiguration {
         return config;
     }
 
-//    @Bean
-//    public MLPluginConfiguration mlPluginConfiguration() {
-//        MLPluginConfiguration configuration = new MLPluginConfiguration();
-//
-//        configuration.setMdlStorageBackups(2);
-//        configuration.setWithMdlStorage(true);
-//
-//        return configuration;
-//    }
-
     @Bean
     public DiscoverySpi discoverySpi(TcpDiscoveryIpFinder ipFinder) {
         TcpDiscoverySpi discovery = new TcpDiscoverySpi();
@@ -118,7 +76,15 @@ public class HcDemoGeneratorApplicationConfiguration {
     }
 
     @Bean
-    public TcpDiscoveryIpFinder ipFinder(@Value("#{'${ignite.hosts}'.split(',')}") List<String> addresses) {
+    @Profile("kubernetes")
+    public TcpDiscoveryIpFinder ipFinder() {
+        return new TcpDiscoveryKubernetesIpFinder();
+    }
+
+    @Bean
+    @Profile("!kubernetes")
+    public TcpDiscoveryIpFinder ipFinder(
+        @Value("#{'${com.gridgain.hcdemo.local.ignite.hosts}'.split(',')}") List<String> addresses) {
         TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
 
         ipFinder.setAddresses(addresses);
@@ -126,8 +92,21 @@ public class HcDemoGeneratorApplicationConfiguration {
         return ipFinder;
     }
 
-//    @Bean
-//    public IgniteLogger logger() {
-//        return new Slf4jLogger(log);
-//    }
+    @Bean
+    public InfluxDB influxDB(@Value("com.gridgain.hcdemo.influx.url") String influxUrl,
+        @Value("com.gridgain.hcdemo.influx.username") String influxUsername,
+        @Value("com.gridgain.hcdemo.influx.password") String influxPassword,
+        @Value("com.gridgain.hcdemo.influx.database") String influxDatabase) {
+        InfluxDB influxDB = InfluxDBFactory.connect(influxUrl, influxUsername, influxPassword);
+        influxDB.query(new Query("CREATE DATABASE " + influxDatabase));
+        influxDB.setDatabase(influxDatabase);
+
+        String rpName = "aRetentionPolicy";
+        influxDB.query(new Query("CREATE RETENTION POLICY " + rpName + " ON " + influxDatabase
+            + " DURATION 30h REPLICATION 2 SHARD DURATION 30m DEFAULT"));
+        influxDB.setRetentionPolicy(rpName);
+        influxDB.enableBatch(BatchOptions.DEFAULTS);
+
+        return influxDB;
+    }
 }
