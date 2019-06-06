@@ -113,6 +113,74 @@ curl -sS https://get.k8s.io | bash
 export PATH=$PATH:$PWD/kubernetes/client/bin
 ```
 
+When all required utilities are installed we need to configure `aws`. AWS Access Key ID and AWS Secret Access Key could be acquired in AWS web console (Account -> My Security Credentials).
+
+```
+aws configure
+# AWS Access Key ID [None]: XXX
+# AWS Secret Access Key [None]: XXX
+# Default region name [None]: us-west-1
+# Default output format [None]: text
+```
+
+After this step we need to configure indetity and access management:
+
+```
+aws iam create-group --group-name kops
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --group-name kops
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonRoute53FullAccess --group-name kops
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --group-name kops
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --group-name kops
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --group-name kops
+aws iam create-user --user-name kops
+aws iam add-user-to-group --user-name kops --group-name kops
+aws iam create-access-key --user-name kops
+```
+
+Then let's define required environment variables. AWS Access Key ID and AWS Secret Access Key could be acquired in AWS web console (Account -> My Security Credentials).
+
+```
+export AWS_ACCESS_KEY_ID=XXX
+export AWS_SECRET_ACCESS_KEY=XXX
+export NAME=hc-demo-cluster.k8s.local
+export KOPS_STATE_STORE=s3://hc-demo-state-store
+```
+
+Now we need to create Kubernetes cluster (if you don't have `$HOME/.ssh/id_rsa.pub` key you need to generate it using `ssh-keygen`):
+
+```
+kops create cluster --zones eu-west-1a --node-count=6 --node-size=t3.medium --master-size=t3.medium ${NAME} --yes
+```
+
+This process takes time. To check current state of the cluster you can use command `kops validate cluster`. When the cluster is ready we can continue.
+
+The next step is deployment of Kubernetes [Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/):
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
+```
+
+To get access to the dashboard we need to generate a token:
+
+```
+# Create the service account in the current namespace 
+# (we assume default)
+kubectl create serviceaccount my-dashboard-sa
+
+# Give that service account root on the cluster
+kubectl create clusterrolebinding my-dashboard-sa \
+  --clusterrole=cluster-admin \
+  --serviceaccount=default:my-dashboard-sa
+
+# Find the secret that was created to hold the token for the SA
+kubectl get secrets
+
+# Show the contents of the secret to extract the token
+kubectl describe secret my-dashboard-sa-token-xxxxx
+```
+
+When it's done we can call `kubectl proxy` and open [http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=default](http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=default).
+
 ## Benchmarks
 
 TBD
