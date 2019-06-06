@@ -2,6 +2,11 @@
 
 - [Overview](#overview)
 - [Architecture](#architecture)
+- [How to build?](#how-to-build?)
+- [How to run?](#how-to-run?)
+  *  [Docker Compose](#docker-compose)
+  *  [Kubernetes](#kubernetes)
+- [Benchmarks](#benchmarks)
 
 ## Overview
 
@@ -32,16 +37,22 @@ The following components represented in the diagram:
 
 The most important part of this architecture is that partitioning, inference and save are made for a single application using a single network call. It allows us to make inference instantly and provide linear scalability.
 
-## How to build and start?
+## How to build?
 
-```
-cd hc-demo-backend
-mvn clean package
+TBD
 
-cd ../hc-demo-frontend
-npm run build
+## How to run?
 
-cd ..
-docker-compose build
-docker-compose up
-```
+TBD
+
+### Docker compose
+
+TBD
+
+### Kubernetes
+
+TBD
+
+## Benchmarks
+
+TBD
