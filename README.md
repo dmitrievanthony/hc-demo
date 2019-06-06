@@ -39,9 +39,9 @@ The most important part of this architecture is that partitioning, inference and
 
 ## How to build?
 
-This project consists of the following components: *hc-demo-frontend*, *hc-demo-backend/hc-demo-api*, *hc-demo-backend/hc-demo-generator* and *hc-demo-backend/hc-demo-ignite-server*.
+This project consists of following components: *hc-demo-frontend*, *hc-demo-backend/hc-demo-api*, *hc-demo-backend/hc-demo-generator* and *hc-demo-backend/hc-demo-ignite-server*.
 
-The *hc-demo-frontend* component is a [ReactJS](https://reactjs.org/) application and it could be built using the following commands:
+The *hc-demo-frontend* component is a [ReactJS](https://reactjs.org/) application and it could be built using following commands:
 
 ```
 cd hc-demo-frontend
@@ -50,7 +50,7 @@ npm install
 npm run build
 ```
 
-It's also possible to use [Docker](https://www.docker.com/) to build frontend. You can make it using the following instruction:
+It's also possible to use [Docker](https://www.docker.com/) to build frontend. You can make it using following instruction:
 
 ```
 cd hc-demo-frontend
