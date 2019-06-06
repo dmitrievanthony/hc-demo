@@ -85,7 +85,33 @@ docker-compose up
 
 This repository contains *hc-demo-kubernetes.yaml* Kubernetes deployment file. If you have a running Kubernetes cluster it's enough to call `kubectl apply -f hc-demo-kuberneres.yaml` to deploy the demo into cluster.
 
-If you don't have a running Kubernetes cluster yet the following instruction will help you to set it up.
+If you don't have a running Kubernetes cluster yet the following instruction will help you to set it up using [AWS](https://aws.amazon.com/).
+
+First of all, we need to have following command line utilities: `aws`, `kops` and `kubectl`. The following instruction helps to install them:
+
+* Installation of `aws`:
+
+```
+curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+unzip awscli-bundle.zip
+sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+```
+
+* Installation of `kops`:
+
+```
+wget https://github.com/kubernetes/kops/releases/download/1.14.0-alpha.2/kops-linux-amd64
+chmod +x kops-linux-amd64
+mv kops-linux-amd64 /usr/local/bin/kops
+```
+
+* Installation of `kubectl`:
+
+```
+export KUBERNETES_PROVIDER=aws
+curl -sS https://get.k8s.io | bash
+export PATH=$PATH:$PWD/kubernetes/client/bin
+```
 
 ## Benchmarks
 
