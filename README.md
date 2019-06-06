@@ -1,4 +1,4 @@
-# Highly scalable inference with GridGain
+# Highly scalable inference with GridGain ![Alt](docs/gridgain.png)
 
 - [Overview](#overview)
 - [Architecture](#architecture)
