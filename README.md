@@ -83,7 +83,7 @@ docker-compose up
 
 ### Kubernetes
 
-This repository contains *hc-demo-kubernetes.yaml* Kubernetes deployment file. If you have a running Kubernetes cluster it's enough to call `kubectl apply -f hc-demo-kuberneres.yaml` to deploy the demo into cluster.
+This repository contains *hc-demo-kubernetes.yaml* Kubernetes deployment file. If you have a running Kubernetes cluster it's enough to call `kubectl create -f hc-demo-kuberneres.yaml` to deploy the demo into cluster.
 
 If you don't have a running Kubernetes cluster yet the following instruction will help you to set it up using [AWS](https://aws.amazon.com/). The [Kubernetes and Apache Ignite Deployment on AWS](https://www.gridgain.com/resources/blog/kubernetes-and-apacher-ignitetm-deployment-aws) article could be useful as well.
 
@@ -181,6 +181,16 @@ kubectl describe secret my-dashboard-sa-token-xxxxx
 
 When it's done we can call `kubectl proxy` and open [http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=default](http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=default).
 
+When all these steps are done we can finally deploy the demo:
+
+```
+kubectl create -f hc-demo-kuberneres.yaml
+```
+
+After that processes are started and you can access entrypoints (UI and [Grafana](https://grafana.com/)) using links specified in Dashboard in section "Services".
+
 ## Benchmarks
 
-TBD
+Benchmark on a Kubernetes cluster with 4 nodes:
+
+![](docs/throughput.png)
