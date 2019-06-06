@@ -39,15 +39,47 @@ The most important part of this architecture is that partitioning, inference and
 
 ## How to build?
 
-TBD
+This project consists of the following components: *hc-demo-frontend*, *hc-demo-backend/hc-demo-api*, *hc-demo-backend/hc-demo-generator* and *hc-demo-backend/hc-demo-ignite-server*.
+
+The *hc-demo-frontend* component is a [ReactJS](https://reactjs.org/) application and it could be built using the following commands:
+
+```
+cd hc-demo-frontend
+
+npm install
+npm run build
+```
+
+It's also possible to use [Docker](https://www.docker.com/) to build frontend. You can make it using the following instruction:
+
+```
+cd hc-demo-frontend
+
+docker run -it --rm -v ${PWD}:/app node:7 bash
+cd /app
+npm install
+npm run build
+```
+
+All components inside *hc-demo-backend* could be built using [maven](https://maven.apache.org/):
+
+```
+cd hc-demo-backend
+
+mvn clean install
+```
 
 ## How to run?
 
-TBD
+This repository contains scripts that allow to run demo on a single node using [Docker Compose](https://docs.docker.com/compose/) and in cluster using [Kubernetes](https://kubernetes.io/).
 
-### Docker compose
+### Docker Compose
 
-TBD
+To run demo on a single node using Docker Compose it's enough to call the following command:
+
+```
+docker-compose up
+```
 
 ### Kubernetes
 
