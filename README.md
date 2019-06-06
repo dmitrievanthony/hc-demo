@@ -1,11 +1,11 @@
 # Highly scalable inference with [GridGain](https://www.gridgain.com/)
 
-![Alt](docs/gridgain.svg)
-
 - [Overview](#overview)
 - [Architecture](#architecture)
 
 ## Overview
+
+![Alt](docs/gridgain.svg)
 
 The initial problem has been taken from Kaggle “Home Credit Default Risk” [problem](https://www.kaggle.com/c/home-credit-default-risk). The following entity relationship diagram describes a data model used in the problem.
 
