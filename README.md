@@ -149,7 +149,7 @@ export KOPS_STATE_STORE=s3://hc-demo-state-store
 Now we need to create Kubernetes cluster (if you don't have `$HOME/.ssh/id_rsa.pub` key you need to generate it using `ssh-keygen`):
 
 ```
-kops create cluster --zones eu-west-1a --node-count=6 --node-size=t3.medium --master-size=t3.medium ${NAME} --yes
+kops create cluster --zones eu-west-1a --node-count=6 --node-size=t3.medium --master-size=t3.medium ${NAME} --yes --cloud-labels="team=ml,app=hc-demo"
 ```
 
 This process takes time. To check current state of the cluster you can use command `kops validate cluster`. When the cluster is ready we can continue.
