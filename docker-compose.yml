@@ -2,6 +2,7 @@ version: '3'
 services:
     frontend:
         build: hc-demo-frontend
+        image: dmitrievanthony/hc-demo-frontend
         ports:
             - '8080:80'
         links:
@@ -9,17 +10,20 @@ services:
 
     api:
         build: hc-demo-backend/hc-demo-api
+        image: dmitrievanthony/hc-demo-api
         links:
             - ignite
 
     generator:
         build: hc-demo-backend/hc-demo-generator
+        image: dmitrievanthony/hc-demo-generator
         links:
             - ignite
             - metrics
 
     ignite:
         build: hc-demo-backend/hc-demo-ignite-server
+        image: dmitrievanthony/hc-demo-ignite-server
 
     metrics:
         image: philhawthorne/docker-influxdb-grafana

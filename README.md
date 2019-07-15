@@ -146,6 +146,12 @@ export NAME=hc-demo-cluster.k8s.local
 export KOPS_STATE_STORE=s3://hc-demo-state-store
 ```
 
+If you don't have a S3 bucket you can create it using the following command:
+
+```
+aws s3api create-bucket --bucket hc-demo-state-store --region eu-west-1 --create-bucket-configuration LocationConstraint=eu-west-1
+```
+
 Now we need to create Kubernetes cluster (if you don't have `$HOME/.ssh/id_rsa.pub` key you need to generate it using `ssh-keygen`):
 
 ```
@@ -184,10 +190,29 @@ When it's done we can call `kubectl proxy` and open [http://localhost:8001/api/v
 When all these steps are done we can finally deploy the demo:
 
 ```
-kubectl create -f hc-demo-kuberneres.yaml
+kubectl create -f hc-demo-kubernetes.yaml
 ```
 
 After that processes are started and you can access entrypoints (UI and [Grafana](https://grafana.com/)) using links specified in Dashboard in section "Services".
+
+To configure Grafana you can use following steps:
+
+```
+User: root
+Password: root
+```
+
+When you get an access to management console you need to create a datasource. Use the following credentials to create it:
+
+```
+Type: InfuxDB
+URL: http://metrics:8086
+User: root
+Password: root
+Database: metrics
+```
+
+When datasource is created you can create a dashboard to make benchmarks (table `inference`, field `throughput`).
 
 ## Benchmarks
 
